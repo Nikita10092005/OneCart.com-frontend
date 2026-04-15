@@ -1,0 +1,29 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --amazon-header:         #131921;
+  --amazon-subheader:      #232F3E;
+  --amazon-accent:         #FF9900;
+  --amazon-accent-hover:   #E88A00;
+  --amazon-section:        #F3F3F3;
+  --amazon-border:         #DDDDDD;
+  --amazon-price:          #B12704;
+  --amazon-text:           #0F1111;
+  --amazon-text-secondary: #565959;
+  font-family: 'Amazon Ember', 'Arial', sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+body {
+  margin: 0;
+  background: #FFFFFF;
+  color: #0F1111;
+  overflow-x: hidden;
+}
+
+/* thin scrollbar */
+::-webkit-scrollbar { width: 5px; height: 5px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: #DDDDDD; border-radius: 10px; }
