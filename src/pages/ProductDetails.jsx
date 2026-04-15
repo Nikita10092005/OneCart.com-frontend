@@ -11,14 +11,11 @@ import ViewerCount from "../components/ViewerCount";
 import PriceAlertButton from "../components/PriceAlertButton";
 import ComparisonButton from "../components/ComparisonButton";
 import ReviewSystem from "../components/ReviewSystem";
-
-const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000";
+import { imgUrl, API_BASE_URL } from "../utils/imageUrl";
 
 function ProductImage({ product }) {
   const [imgError, setImgError] = useState(false);
-  const imageUrl = product.image
-    ? (product.image.startsWith("http") ? product.image : `${API_URL}/uploads/${product.image}`)
-    : null;
+  const imageUrl = imgUrl(product.image);
 
   if (!imageUrl || imgError) {
     return (
@@ -96,7 +93,7 @@ export default function ProductDetails() {
         // Record browsing event for authenticated users
         if (user) {
           const token = localStorage.getItem("token");
-          fetch(`${import.meta.env.VITE_API_URL || "http://localhost:5000"}/api/recommendations/browse`, {
+          fetch(`${import.meta.env.VITE_API_URL || "http://localhost:5000/api"}/recommendations/browse`, {
             method: "POST",
             headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
             body: JSON.stringify({ productId: id })
@@ -359,7 +356,7 @@ export default function ProductDetails() {
                     className="bg-amazon-section border border-amazon-border rounded-xl p-3 hover:border-amazon-accent transition-all group block">
                     <div className="w-full h-40 flex items-center justify-center mb-3 bg-white rounded-lg overflow-hidden border border-amazon-border">
                       <img
-                        src={p.image?.startsWith("http") ? p.image : `${API_URL}/uploads/${p.image}`}
+                        src={imgUrl(p.image)}
                         alt={p.name}
                         className="max-h-full max-w-full object-contain group-hover:scale-105 transition-transform duration-300" />
                     </div>

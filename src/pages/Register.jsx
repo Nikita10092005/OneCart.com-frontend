@@ -193,7 +193,8 @@ export default function Register() {
               value={name}
               onChange={handleNameChange}
               onBlur={() => setTouched(t => ({ ...t, name: true }))}
-              placeholder="Pankaj Kumar"
+              placeholder="Enter your full name"
+              autoComplete="off"
               className={`w-full bg-white border text-amazon-text placeholder-amazon-text-secondary text-sm rounded-xl px-4 py-3.5 focus:outline-none focus:ring-2 focus:ring-amazon-accent/30 focus:border-amazon-accent transition
                 ${nameError ? "border-red-400 bg-red-50" : "border-amazon-border"}`}
             />
@@ -209,6 +210,7 @@ export default function Register() {
               onChange={e => setEmail(e.target.value)}
               onBlur={() => setTouched(t => ({ ...t, email: true }))}
               placeholder="you@example.com"
+              autoComplete="new-email"
               className={`w-full bg-white border text-amazon-text placeholder-amazon-text-secondary text-sm rounded-xl px-4 py-3.5 focus:outline-none focus:ring-2 focus:ring-amazon-accent/30 focus:border-amazon-accent transition
                 ${emailError ? "border-red-400 bg-red-50" : "border-amazon-border"}`}
             />

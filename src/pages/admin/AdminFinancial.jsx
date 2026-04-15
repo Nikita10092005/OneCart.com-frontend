@@ -5,7 +5,7 @@ import {
   Check, X, Save, AlertCircle, Globe, Banknote, Power
 } from "lucide-react";
 
-const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000";
+const API_URL = (import.meta.env.VITE_API_URL || "http://localhost:5000/api").replace(/\/api$/, "");
 
 function AdminFinancial() {
   const [activeTab, setActiveTab] = useState("coupons");
@@ -517,12 +517,12 @@ function AdminFinancial() {
         )}
       </AnimatePresence>
 
-      <div className="flex gap-2 border-b border-amazon-border">
+      <div className="flex gap-2 border-b border-amazon-border overflow-x-auto scrollbar-hide">
         {tabs.map((tab) => (
           <button
             key={tab.id}
             onClick={() => setActiveTab(tab.id)}
-            className={`flex items-center gap-2 px-4 py-3 font-medium text-sm transition-all ${
+            className={`flex items-center gap-2 px-4 py-3 font-medium text-sm transition-all whitespace-nowrap flex-shrink-0 ${
               activeTab === tab.id
                 ? "text-amazon-accent border-b-2 border-amazon-accent"
                 : "text-amazon-accent hover:text-amazon-accent"
@@ -548,7 +548,7 @@ function AdminFinancial() {
 
           {showCouponForm && (
             <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: "auto" }} className="bg-amazon-section rounded-xl p-6 space-y-4">
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                   <label className="text-xs font-bold text-amazon-accent uppercase">Coupon Code</label>
                   <input type="text" value={couponForm.code} onChange={(e) => setCouponForm({ ...couponForm, code: e.target.value.toUpperCase() })} className="w-full mt-1 px-3 py-2 border border-amazon-border rounded-lg" placeholder="SUMMER2024" />
@@ -603,8 +603,8 @@ function AdminFinancial() {
             </motion.div>
           )}
 
-          <div className="bg-white rounded-xl border border-amazon-border overflow-hidden">
-            <table className="w-full">
+          <div className="bg-white rounded-xl border border-amazon-border overflow-x-auto">
+            <table className="w-full min-w-[600px]">
               <thead className="bg-amazon-section">
                 <tr>
                   <th className="px-4 py-3 text-left text-xs font-bold text-amazon-accent uppercase">Code</th>

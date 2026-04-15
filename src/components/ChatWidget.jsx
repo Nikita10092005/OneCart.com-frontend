@@ -3,7 +3,13 @@ import { motion, AnimatePresence } from "framer-motion";
 import { io } from "socket.io-client";
 import { useAuth } from "../context/AuthContext";
 
-const socket = io(import.meta.env.VITE_API_URL || "http://localhost:5000");
+const SOCKET_URL = import.meta.env.VITE_BASE_URL || "http://localhost:5000";
+
+const socket = io(SOCKET_URL, {
+  transports: ["websocket", "polling"],
+  reconnectionAttempts: 5,
+  reconnectionDelay: 2000,
+});
 
 function ChatWidget() {
   const { user } = useAuth();
@@ -92,7 +98,7 @@ function ChatWidget() {
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.85, y: 20 }}
             transition={{ type: "spring", stiffness: 300, damping: 25 }}
-            className="fixed bottom-6 right-6 w-80 h-[460px] bg-white rounded-2xl shadow-2xl shadow-black/10 border border-amazon-border flex flex-col z-50 overflow-hidden">
+            className="fixed bottom-6 right-4 left-4 sm:left-auto sm:w-80 h-[460px] bg-white rounded-2xl shadow-2xl shadow-black/10 border border-amazon-border flex flex-col z-50 overflow-hidden">
 
             {/* HEADER */}
             <div className="bg-amazon-accent text-amazon-text px-4 py-3 flex items-center justify-between">

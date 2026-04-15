@@ -5,6 +5,7 @@ import { useNavigate } from "react-router-dom";
 import API from "../services/api";
 import { useAuth } from "../context/AuthContext";
 import { useCart } from "../context/CartContext";
+import { imgUrl } from "../utils/imageUrl";
 
 const inputCls = "w-full bg-amazon-section/50 border border-amazon-border text-amazon-text placeholder-amazon-text-secondary text-sm rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-amazon-accent/30 focus:border-amazon-accent focus:bg-white transition";
 
@@ -570,11 +571,7 @@ export default function Checkout() {
                     initial={{ opacity: 0, x: 10 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: i * 0.06 }}
                     className="flex items-center gap-3">
                     <img
-                      src={item.productId?.image
-                        ? item.productId.image.startsWith("http")
-                          ? item.productId.image
-                          : `${import.meta.env.VITE_API_URL}/uploads/${item.productId.image}`
-                        : null}
+                      src={imgUrl(item.productId?.image)}
                       alt={item.productId?.name || ""}
                       onError={e => { e.target.style.display = "none"; e.target.nextSibling.style.display = "flex"; }}
                       className="w-12 h-12 rounded-xl object-contain bg-amazon-section border border-amazon-border p-1 flex-shrink-0" />

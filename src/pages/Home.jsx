@@ -8,6 +8,7 @@ import ProductCard from "../components/ProductCard";
 import HeroBanner from "../components/HeroBanner";
 import CategorySidebar from "../components/CategorySidebar";
 import PriceFilter from "../components/PriceFilter";
+import { imgUrl } from "../utils/imageUrl";
 import RecentlyViewed from "../components/RecentlyViewed";
 import PointsWidget from "../components/PointsWidget";
 import { useNavigate } from "react-router-dom";
@@ -86,7 +87,7 @@ export default function Home() {
   useEffect(() => {
     if (!user) { setPersonalizedProducts([]); setIsPersonalized(false); return; }
     const token = localStorage.getItem("token");
-    fetch(`${import.meta.env.VITE_API_URL || "http://localhost:5000"}/api/recommendations/home`, {
+    fetch(`${import.meta.env.VITE_API_URL || "http://localhost:5000/api"}/recommendations/home`, {
       headers: { Authorization: `Bearer ${token}` }
     })
       .then(res => res.json())
@@ -171,7 +172,7 @@ export default function Home() {
             whileHover={{ y: -3, scale: 1.03 }}
             onClick={() => navigate(`/product/${p._id}`)}
             className="flex items-center gap-2 bg-white border border-amazon-border rounded-full px-3 sm:px-4 py-1.5 sm:py-2 cursor-pointer flex-shrink-0 hover:shadow-md transition-all group">
-            <img src={p.image?.startsWith("http") ? p.image : `${import.meta.env.VITE_API_URL || "http://localhost:5000"}/uploads/${p.image}`}
+            <img src={imgUrl(p.image)}
               alt={p.name} className="w-6 h-6 sm:w-8 sm:h-8 rounded-full object-cover bg-amazon-section" />
             <span className="text-xs font-medium text-amazon-text group-hover:text-amazon-accent whitespace-nowrap">
               {p.name.length > 16 ? p.name.slice(0, 16) + "…" : p.name}

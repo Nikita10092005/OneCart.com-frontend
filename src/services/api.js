@@ -1,7 +1,9 @@
 import axios from "axios";
 
+const RAILWAY_URL = "https://onecart-backend-production-400c.up.railway.app/api";
+
 const API = axios.create({
-  baseURL: "http://localhost:5000/api"
+  baseURL: import.meta.env.VITE_API_URL || RAILWAY_URL
 });
 
 API.interceptors.request.use((config) => {

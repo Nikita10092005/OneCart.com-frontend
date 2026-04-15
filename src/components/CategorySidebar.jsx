@@ -115,7 +115,7 @@ function CategorySidebar({ setCategory, onOpenChat }) {
                 <div className="w-10 h-10 rounded-lg bg-amazon-section flex items-center justify-center flex-shrink-0 border border-amazon-border">
                   {product.image ? (
                     <img 
-                      src={product.image.startsWith('http') ? product.image : `${import.meta.env.VITE_API_URL || 'http://localhost:5000'}/uploads/${product.image}`}
+                      src={product.image.startsWith('http') ? product.image : `${(import.meta.env.VITE_BASE_URL || import.meta.env.VITE_API_URL || 'http://localhost:5000').replace(/\/api$/, '')}/uploads/${product.image}`}
                       alt={product.name}
                       className="w-full h-full object-cover rounded-lg"
                     />

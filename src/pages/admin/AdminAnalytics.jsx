@@ -377,13 +377,13 @@ export default function AdminAnalytics() {
       </div>
 
       {/* Tabs */}
-      <div className="flex gap-1 bg-gray-100 p-1 rounded-xl w-fit">
+      <div className="flex gap-1 bg-gray-100 p-1 rounded-xl w-full overflow-x-auto scrollbar-hide">
         {TABS.map(t => {
           const Icon = t.icon;
           const active = tab === t.id;
           return (
             <button key={t.id} onClick={() => setTab(t.id)}
-              className={`flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-bold transition-all ${
+              className={`flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-bold transition-all whitespace-nowrap flex-shrink-0 ${
                 active ? "bg-white text-gray-800 shadow-sm" : "text-gray-400 hover:text-gray-600"
               }`}>
               <Icon size={14} />

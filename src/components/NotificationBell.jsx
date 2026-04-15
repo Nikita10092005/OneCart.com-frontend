@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from "react";
 import { Bell, X } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
 
-const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000";
+const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000/api";
 
 export default function NotificationBell() {
   const { user } = useAuth();
@@ -13,7 +13,7 @@ export default function NotificationBell() {
   const fetchNotifications = () => {
     if (!user) return;
     const token = localStorage.getItem("token");
-    fetch(`${API_URL}/api/notifications`, {
+    fetch(`${API_URL}/notifications`, {
       headers: { Authorization: `Bearer ${token}` },
     })
       .then((res) => res.json())
@@ -52,7 +52,7 @@ export default function NotificationBell() {
   const markAsRead = async (id) => {
     const token = localStorage.getItem("token");
     try {
-      await fetch(`${API_URL}/api/notifications/${id}/read`, {
+      await fetch(`${API_URL}/notifications/${id}/read`, {
         method: "PATCH",
         headers: { Authorization: `Bearer ${token}` },
       });
@@ -66,7 +66,7 @@ export default function NotificationBell() {
     // optimistic remove
     setNotifications((prev) => prev.filter((n) => n._id !== id));
     try {
-      await fetch(`${API_URL}/api/notifications/${id}`, {
+      await fetch(`${API_URL}/notifications/${id}`, {
         method: "DELETE",
         headers: { Authorization: `Bearer ${token}` },
       });

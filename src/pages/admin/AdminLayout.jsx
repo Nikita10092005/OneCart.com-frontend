@@ -178,7 +178,7 @@ function AdminLayout() {
             <span className="text-xs font-bold text-gray-700">{pageLabel}</span>
           </div>
 
-          <div className="p-6 max-w-[1500px] mx-auto">
+          <div className="p-3 sm:p-6 max-w-[1500px] mx-auto">
             <AnimatePresence mode="wait">
               <motion.div
                 key={location.pathname}
@@ -186,7 +186,7 @@ function AdminLayout() {
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -8 }}
                 transition={{ duration: 0.2 }}
-                className="bg-white rounded-2xl border border-gray-200 shadow-sm p-7 min-h-[600px]"
+                className="bg-white rounded-2xl border border-gray-200 shadow-sm p-4 sm:p-7 min-h-[600px]"
               >
                 <Outlet />
               </motion.div>

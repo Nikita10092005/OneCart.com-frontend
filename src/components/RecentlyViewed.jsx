@@ -2,7 +2,7 @@ import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
 import { useRecentlyViewed } from "../hooks/useRecentlyViewed";
 
-const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000";
+const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000/api";
 
 export default function RecentlyViewed() {
   const { recentlyViewed, clearRecentlyViewed, removeFromRecentlyViewed } = useRecentlyViewed();
@@ -56,7 +56,7 @@ export default function RecentlyViewed() {
               <div className="w-full h-28 flex items-center justify-center mb-2 bg-white rounded-lg overflow-hidden border border-amazon-border">
                 {product.image ? (
                   <img
-                    src={product.image.startsWith("http") ? product.image : `${API_URL}/uploads/${product.image}`}
+                    src={product.image.startsWith("http") ? product.image : `${API_URL.replace(/\/api$/, "")}/uploads/${product.image}`}
                     alt={product.name}
                     className="max-h-full max-w-full object-contain"
                     onError={(e) => { e.target.style.display = "none"; e.target.nextSibling.style.display = "block"; }}

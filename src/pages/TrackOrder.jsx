@@ -9,7 +9,7 @@ import {
   Clock, RefreshCw, AlertCircle
 } from "lucide-react";
 
-const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000";
+const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000/api";
 
 const STAGES = [
   { name: "Ordered",   icon: ClipboardList, label: "Order Placed",   desc: "Your order has been confirmed" },

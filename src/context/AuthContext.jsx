@@ -15,7 +15,7 @@ export const AuthProvider = ({ children }) => {
     const token = localStorage.getItem("token");
     if (!stored?._id || !token) return;
 
-    axios.get(`${import.meta.env.VITE_API_URL || "http://localhost:5000"}/api/user/profile/${stored._id}`, {
+    axios.get(`${import.meta.env.VITE_API_URL || "https://onecart-backend-production-400c.up.railway.app/api"}/user/profile/${stored._id}`, {
       headers: { Authorization: `Bearer ${token}` }
     }).then(res => {
       const fresh = { ...stored, role: res.data.role, name: res.data.name };

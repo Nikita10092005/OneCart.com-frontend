@@ -4,7 +4,13 @@ import API from "../../services/api";
 import { io } from "socket.io-client";
 import { Send, MessageSquare, Search } from "lucide-react";
 
-const socket = io(import.meta.env.VITE_API_URL || "http://localhost:5000");
+const SOCKET_URL = import.meta.env.VITE_BASE_URL || "http://localhost:5000";
+
+const socket = io(SOCKET_URL, {
+  transports: ["websocket", "polling"],
+  reconnectionAttempts: 5,
+  reconnectionDelay: 2000,
+});
 
 function AdminMessages() {
   const [messages, setMessages]       = useState([]);
@@ -43,10 +49,10 @@ function AdminMessages() {
         <p className="text-amazon-accent text-sm mt-0.5">Respond to customer support queries</p>
       </div>
 
-      <div className="flex h-[65vh] bg-amazon-section/30 rounded-2xl overflow-hidden border border-amazon-border">
+      <div className="flex flex-col md:flex-row h-[65vh] bg-amazon-section/30 rounded-2xl overflow-hidden border border-amazon-border">
 
         {/* SIDEBAR */}
-        <div className="w-72 border-r border-amazon-border flex flex-col bg-white">
+        <div className={`${selectedUser ? "hidden md:flex" : "flex"} w-full md:w-72 border-r border-amazon-border flex-col bg-white`}>
           <div className="p-4 border-b border-amazon-section">
             <h3 className="text-sm font-black text-amazon-text flex items-center gap-2 mb-3">
               <MessageSquare size={16} className="text-amazon-accent" />
@@ -84,7 +90,7 @@ function AdminMessages() {
         </div>
 
         {/* CHAT AREA */}
-        <div className="flex-1 flex flex-col bg-white">
+        <div className={`${selectedUser ? "flex" : "hidden md:flex"} flex-1 flex-col bg-white`}>
           {!selectedUser ? (
             <div className="flex-1 flex flex-col items-center justify-center text-center p-10">
               <div className="w-16 h-16 bg-amazon-section text-amazon-accent rounded-2xl flex items-center justify-center mb-4">
@@ -97,6 +103,13 @@ function AdminMessages() {
             <>
               {/* CHAT HEADER */}
               <div className="p-4 border-b border-amazon-section flex items-center gap-3">
+                <button
+                  onClick={() => setSelectedUser(null)}
+                  className="md:hidden text-amazon-accent mr-1 font-bold text-lg leading-none"
+                  aria-label="Back"
+                >
+                  ←
+                </button>
                 <div className="w-9 h-9 bg-amazon-accent text-white rounded-xl flex items-center justify-center font-black text-sm">
                   {users.find(u => u.userId === selectedUser)?.userEmail?.[0].toUpperCase()}
                 </div>
