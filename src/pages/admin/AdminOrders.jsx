@@ -233,18 +233,21 @@ function AdminOrders() {
   const [filterStatus, setFilterStatus] = useState("All");
   const [sortBy, setSortBy] = useState("newest");
   const [expandedId, setExpandedId] = useState(null);
+  const [error,setError] = useState('');
 
   useEffect(() => {
-    (async () => {
-      const res = await API.get("/admin/orders");
-      setOrders(res.data);
-      setLoading(false);
-    })();
+    API.get('/admin/orders').then(res => setOrders(res.data))
+      .catch(() => setError('Unable to load orders. Please refresh and try again.'))
+      .finally(() => setLoading(false));
   }, []);
 
   const updateStatus = async (id, status) => {
-    await API.put(`/admin/orders/${id}`, { status });
-    setOrders(prev => prev.map(o => o._id === id ? { ...o, status } : o));
+    try {
+      const res = await API.put(`/admin/orders/${id}`, { status });
+      const updated = res.data.order || res.data;
+      setOrders(prev => prev.map(o => o._id === id ? { ...o, ...updated, userId:o.userId,products:o.products } : o));
+      setError('');
+    } catch(e) { setError(e.response?.data?.message || e.response?.data?.error || 'Status update failed'); }
   };
 
   const statusCounts = useMemo(() => {
@@ -288,6 +291,7 @@ function AdminOrders() {
 
   return (
     <div className="space-y-6">
+      {error && <p role="alert" className="text-red-700">{error}</p>}
 
       {/* HEADER */}
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 pb-5 border-b border-amazon-section">

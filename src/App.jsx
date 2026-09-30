@@ -1,3 +1,4 @@
+import { lazy, Suspense } from 'react';
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import ScrollToTop from "./components/ScrollToTop";
 import AuthProvider from "./context/AuthContext";
@@ -7,60 +8,61 @@ import ProtectedRoute from "./components/ProtectedRoute";
 import PublicRoute from "./components/PublicRoute";
 import UserLayout from "./components/UserLayout";
 import PublicInfoLayout from "./components/PublicInfoLayout";
-import AdminLayout from "./pages/admin/AdminLayout";
-import Landing from "./pages/Landing";
-import Register from "./pages/Register";
-import Login from "./pages/Login";
-import Home from "./pages/Home";
-import Cart from "./pages/Cart";
-import Orders from "./pages/Orders";
-import Checkout from "./pages/Checkout";
-import PaymentSuccess from "./pages/PaymentSuccess";
-import ProductDetails from "./pages/ProductDetails";
-import Search from "./pages/Search";
-import Wishlist from "./pages/Wishlist";
-import Contact from "./pages/Contact";
-import FAQ from "./pages/FAQ";
-import Privacy from "./pages/Privacy";
-import Returns from "./pages/Returns";
-import TrackOrder from "./pages/TrackOrder";
-import Verify from "./pages/Verify";
-import Profile from "./pages/Profile";
-import MoodShop from "./pages/MoodShop";
-import PriceAlerts from "./pages/PriceAlerts";
-import Comparison from "./pages/Comparison";
-import Rewards from "./pages/Rewards";
+const AdminLayout = lazy(() => import('./pages/admin/AdminLayout'));
+const Landing = lazy(() => import('./pages/Landing'));
+const Register = lazy(() => import('./pages/Register'));
+const Login = lazy(() => import('./pages/Login'));
+const Home = lazy(() => import('./pages/Home'));
+const Cart = lazy(() => import('./pages/Cart'));
+const Orders = lazy(() => import('./pages/Orders'));
+const Checkout = lazy(() => import('./pages/Checkout'));
+const PaymentSuccess = lazy(() => import('./pages/PaymentSuccess'));
+const ProductDetails = lazy(() => import('./pages/ProductDetails'));
+const Search = lazy(() => import('./pages/Search'));
+const Wishlist = lazy(() => import('./pages/Wishlist'));
+const Contact = lazy(() => import('./pages/Contact'));
+const FAQ = lazy(() => import('./pages/FAQ'));
+const Privacy = lazy(() => import('./pages/Privacy'));
+const Returns = lazy(() => import('./pages/Returns'));
+const TrackOrder = lazy(() => import('./pages/TrackOrder'));
+const Verify = lazy(() => import('./pages/Verify'));
+const Profile = lazy(() => import('./pages/Profile'));
+const MoodShop = lazy(() => import('./pages/MoodShop'));
+const PriceAlerts = lazy(() => import('./pages/PriceAlerts'));
+const Comparison = lazy(() => import('./pages/Comparison'));
+const Rewards = lazy(() => import('./pages/Rewards'));
 
-import About from "./pages/About";
-import Careers from "./pages/Careers";
-import Press from "./pages/Press";
-import Science from "./pages/Science";
-import Sell from "./pages/Sell";
-import SellUnder from "./pages/SellUnder";
-import Affiliate from "./pages/Affiliate";
-import Advertise from "./pages/Advertise";
-import BusinessCard from "./pages/BusinessCard";
-import ReloadBalance from "./pages/ReloadBalance";
-import CurrencyConverter from "./pages/CurrencyConverter";
-import Shipping from "./pages/Shipping";
-import Conditions from "./pages/Conditions";
-import InterestAds from "./pages/InterestAds";
+const About = lazy(() => import('./pages/About'));
+const Careers = lazy(() => import('./pages/Careers'));
+const Press = lazy(() => import('./pages/Press'));
+const Science = lazy(() => import('./pages/Science'));
+const Sell = lazy(() => import('./pages/Sell'));
+const SellUnder = lazy(() => import('./pages/SellUnder'));
+const Affiliate = lazy(() => import('./pages/Affiliate'));
+const Advertise = lazy(() => import('./pages/Advertise'));
+const BusinessCard = lazy(() => import('./pages/BusinessCard'));
+const ReloadBalance = lazy(() => import('./pages/ReloadBalance'));
+const CurrencyConverter = lazy(() => import('./pages/CurrencyConverter'));
+const Shipping = lazy(() => import('./pages/Shipping'));
+const Conditions = lazy(() => import('./pages/Conditions'));
+const InterestAds = lazy(() => import('./pages/InterestAds'));
 
 import SellerRoute from "./components/SellerRoute";
-import SellerDashboard from "./pages/SellerDashboard";
+const SellerDashboard = lazy(() => import('./pages/SellerDashboard'));
 
-import AdminDashboard from "./pages/admin/AdminDashboard";
-import AddProduct from "./pages/admin/AddProduct";
-import AdminOrders from "./pages/admin/AdminOrders";
-import AdminProducts from "./pages/admin/AdminProducts";
-import EditProduct from "./pages/admin/EditProduct";
-import AdminMessages from "./pages/admin/AdminMessages";
-import AdminQueries from "./pages/admin/AdminQueries";
-import AdminPriceAlerts from "./pages/admin/AdminPriceAlerts";
-import AdminAnalytics from "./pages/admin/AdminAnalytics";
-import AdminFinancial from "./pages/admin/AdminFinancial";
-import AdminSellerApplications from "./pages/admin/AdminSellerApplications";
-import AdminJobApplications from "./pages/admin/AdminJobApplications";
+const AdminDashboard = lazy(() => import('./pages/admin/AdminDashboard'));
+const AddProduct = lazy(() => import('./pages/admin/AddProduct'));
+const AdminOrders = lazy(() => import('./pages/admin/AdminOrders'));
+const AdminProducts = lazy(() => import('./pages/admin/AdminProducts'));
+const EditProduct = lazy(() => import('./pages/admin/EditProduct'));
+const AdminMessages = lazy(() => import('./pages/admin/AdminMessages'));
+const AdminQueries = lazy(() => import('./pages/admin/AdminQueries'));
+const AdminPriceAlerts = lazy(() => import('./pages/admin/AdminPriceAlerts'));
+const AdminAnalytics = lazy(() => import('./pages/admin/AdminAnalytics'));
+const AdminFinancial = lazy(() => import('./pages/admin/AdminFinancial'));
+const AdminSellerApplications = lazy(() => import('./pages/admin/AdminSellerApplications'));
+const AdminPeople = lazy(() => import('./pages/admin/AdminPeople'));
+const AdminJobApplications = lazy(() => import('./pages/admin/AdminJobApplications'));
 
 function AppWrapper() {
   return (
@@ -68,7 +70,7 @@ function AppWrapper() {
       <CartProvider>
         <BrowserRouter>
           <ScrollToTop />
-          <App />
+          <Suspense fallback={<div role="status" className="min-h-screen grid place-items-center">Loading…</div>}><App /></Suspense>
         </BrowserRouter>
       </CartProvider>
     </AuthProvider>
@@ -105,15 +107,15 @@ function App() {
         <Route path="/track" element={<TrackOrder />} />
         <Route path="/mood-shop" element={<MoodShop />} />
 
-        <Route path="/wishlist" element={<Wishlist />} />
-        <Route path="/cart" element={<Cart />} />
-        <Route path="/orders" element={<Orders />} />
-        <Route path="/profile" element={<Profile />} />
-        <Route path="/checkout" element={<Checkout />} />
-        <Route path="/payment-success" element={<PaymentSuccess />} />
-        <Route path="/price-alerts" element={<PriceAlerts />} />
-        <Route path="/comparison" element={<Comparison />} />
-        <Route path="/rewards" element={<Rewards />} />
+        <Route path="/wishlist" element={<ProtectedRoute><Wishlist /></ProtectedRoute>} />
+        <Route path="/cart" element={<ProtectedRoute><Cart /></ProtectedRoute>} />
+        <Route path="/orders" element={<ProtectedRoute><Orders /></ProtectedRoute>} />
+        <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
+        <Route path="/checkout" element={<ProtectedRoute><Checkout /></ProtectedRoute>} />
+        <Route path="/payment-success" element={<ProtectedRoute><PaymentSuccess /></ProtectedRoute>} />
+        <Route path="/price-alerts" element={<ProtectedRoute><PriceAlerts /></ProtectedRoute>} />
+        <Route path="/comparison" element={<ProtectedRoute><Comparison /></ProtectedRoute>} />
+        <Route path="/rewards" element={<ProtectedRoute><Rewards /></ProtectedRoute>} />
         <Route path="/press" element={<Press />} />
         <Route path="/science" element={<Science />} />
         <Route path="/sell" element={<Sell />} />
@@ -121,7 +123,7 @@ function App() {
         <Route path="/affiliate" element={<Affiliate />} />
         <Route path="/advertise" element={<Advertise />} />
         <Route path="/business-card" element={<BusinessCard />} />
-        <Route path="/reload-balance" element={<ReloadBalance />} />
+        <Route path="/reload-balance" element={<ProtectedRoute><ReloadBalance /></ProtectedRoute>} />
         <Route path="/currency-converter" element={<CurrencyConverter />} />
         <Route path="/shipping" element={<Shipping />} />
         <Route path="/interest-ads" element={<InterestAds />} />
@@ -141,6 +143,8 @@ function App() {
         <Route path="/admin/price-alerts" element={<AdminPriceAlerts />} />
         <Route path="/admin/financial" element={<AdminFinancial />} />
         <Route path="/admin/sellers" element={<AdminSellerApplications />} />
+        <Route path="/admin/customers" element={<AdminPeople key="customers" role="user" />} />
+        <Route path="/admin/seller-accounts" element={<AdminPeople key="sellers" role="seller" />} />
         <Route path="/admin/jobs" element={<AdminJobApplications />} />
       </Route>
 

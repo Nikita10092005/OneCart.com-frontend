@@ -1,8 +1,8 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { Bell, X } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
 
-const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000";
+import { API_URL } from './../services/config';
 
 export default function NotificationBell() {
   const { user } = useAuth();
@@ -10,33 +10,33 @@ export default function NotificationBell() {
   const [open, setOpen] = useState(false);
   const ref = useRef(null);
 
-  const fetchNotifications = () => {
+  const fetchNotifications = useCallback(() => {
     if (!user) return;
     const token = localStorage.getItem("token");
-    fetch(`${API_URL}/api/notifications`, {
+    fetch(`${API_URL}/notifications`, {
       headers: { Authorization: `Bearer ${token}` },
     })
       .then((res) => res.json())
       .then((data) => setNotifications(Array.isArray(data?.notifications) ? data.notifications : []))
       .catch(() => {});
-  };
+  }, [user]);
 
   // fetch on mount
   useEffect(() => {
     fetchNotifications();
-  }, [user]);
+  }, [user, fetchNotifications]);
 
   // re-fetch when dropdown opens
   useEffect(() => {
     if (open) fetchNotifications();
-  }, [open]);
+  }, [open, fetchNotifications]);
 
   // poll every 30 seconds so badge updates automatically
   useEffect(() => {
     if (!user) return;
     const interval = setInterval(fetchNotifications, 30000);
     return () => clearInterval(interval);
-  }, [user]);
+  }, [user, fetchNotifications]);
 
   useEffect(() => {
     const handleClickOutside = (e) => {
@@ -52,7 +52,7 @@ export default function NotificationBell() {
   const markAsRead = async (id) => {
     const token = localStorage.getItem("token");
     try {
-      await fetch(`${API_URL}/api/notifications/${id}/read`, {
+      await fetch(`${API_URL}/notifications/${id}/read`, {
         method: "PATCH",
         headers: { Authorization: `Bearer ${token}` },
       });
@@ -66,7 +66,7 @@ export default function NotificationBell() {
     // optimistic remove
     setNotifications((prev) => prev.filter((n) => n._id !== id));
     try {
-      await fetch(`${API_URL}/api/notifications/${id}`, {
+      await fetch(`${API_URL}/notifications/${id}`, {
         method: "DELETE",
         headers: { Authorization: `Bearer ${token}` },
       });
@@ -85,7 +85,7 @@ export default function NotificationBell() {
         className="relative p-2 rounded-full hover:bg-gray-100 transition-colors"
         aria-label="Notifications"
       >
-        <Bell className="w-6 h-6 text-gray-700" />
+        <Bell className="w-6 h-6 text-current" />
         {unreadCount > 0 && (
           <span className="absolute top-0 right-0 inline-flex items-center justify-center w-5 h-5 text-xs font-bold text-white bg-red-500 rounded-full">
             {unreadCount > 99 ? "99+" : unreadCount}
@@ -94,7 +94,7 @@ export default function NotificationBell() {
       </button>
 
       {open && (
-        <div className="absolute right-0 mt-2 w-80 bg-white rounded-lg shadow-lg border border-gray-200 z-50 overflow-hidden">
+        <div className="fixed left-3 right-3 top-16 sm:absolute sm:left-auto sm:top-auto sm:right-0 mt-2 w-auto sm:w-80 bg-white rounded-lg shadow-lg border border-gray-200 z-50 overflow-hidden">
           <div className="px-4 py-3 border-b border-gray-200 flex items-center justify-between">
             <span className="font-semibold text-gray-700">Notifications</span>
             {notifications.length > 0 && (

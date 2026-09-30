@@ -252,7 +252,7 @@ export default function Sell() {
   const [appRejectionReason, setAppRejectionReason] = useState("");
   const [appDetails, setAppDetails] = useState(null);
   const [modalOpen, setModalOpen] = useState(false);
-  const [statusLoading, setStatusLoading] = useState(false);
+  const [statusLoading, setStatusLoading] = useState(Boolean(user));
   const [toast, setToast] = useState(null);
   const [stats, setStats] = useState(null);
 
@@ -264,7 +264,6 @@ export default function Sell() {
 
   useEffect(() => {
     if (!user || user.role === "seller") return;
-    setStatusLoading(true);
     getMyApplication()
       .then((res) => { setAppStatus(res.data.status); setAppRejectionReason(res.data.rejectionReason || ""); setAppDetails(res.data); })
       .catch((err) => { if (err.response?.status === 404) setAppStatus(null); })

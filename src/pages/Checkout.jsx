@@ -5,6 +5,7 @@ import { useNavigate } from "react-router-dom";
 import API from "../services/api";
 import { useAuth } from "../context/AuthContext";
 import { useCart } from "../context/CartContext";
+import { imgUrl } from "../utils/imageUrl";
 
 const inputCls = "w-full bg-amazon-section/50 border border-amazon-border text-amazon-text placeholder-amazon-text-secondary text-sm rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-amazon-accent/30 focus:border-amazon-accent focus:bg-white transition";
 
@@ -28,13 +29,12 @@ export default function Checkout() {
   const [couponError, setCouponError]     = useState("");
 
   // Tax state
-  const [taxAmount, setTaxAmount] = useState(0);
   const [taxRate, setTaxRate]     = useState(0);
-  const [taxLoading, setTaxLoading] = useState(false);
+  const [, setTaxLoading] = useState(false);
 
   // Wallet state
   const [walletBalance, setWalletBalance] = useState(0);
-  const [walletLoading, setWalletLoading] = useState(true);
+  const [, setWalletLoading] = useState(true);
 
   const headerRef = useRef(null);
   const leftRef   = useRef(null);
@@ -100,7 +100,7 @@ export default function Checkout() {
     return s + price * qty;
   }, 0);
   const delivery   = subtotal > 0 ? 49 : 0;
-  const discount   = couponData?.discountAmount || 0;
+  const discount   = Math.min(subtotal,couponData?.discountAmount || 0);
   const taxBase    = subtotal - discount;
   const tax        = taxRate > 0 ? Math.round((taxBase * taxRate) / 100) : 0;
   const total      = subtotal + delivery - discount + tax;
@@ -165,9 +165,9 @@ export default function Checkout() {
 
     let razorpayOrder;
     try {
-      const { data } = await API.post("/payment/create-order", { amount: safeTotal });
+      const { data } = await API.post("/payment/create-order", { couponCode: couponData?.code });
       if (!data.success) throw new Error(data.message);
-      razorpayOrder = data.order;
+      razorpayOrder = { ...data.order, keyId: data.keyId };
     } catch (err) {
       setErrorMsg(err.response?.data?.message || err.message || "Failed to initiate payment. Please try again.");
       setLoading(false);
@@ -182,7 +182,7 @@ export default function Checkout() {
     }
 
     const options = {
-      key: import.meta.env.VITE_RAZORPAY_KEY_ID,
+      key: razorpayOrder.keyId || import.meta.env.VITE_RAZORPAY_KEY_ID,
       amount: razorpayOrder.amount,
       currency: "INR",
       name: "OneCart.com",
@@ -251,7 +251,7 @@ export default function Checkout() {
       navigate("/payment-success", { state: { orderId: orderRes.data._id, amount: total } });
     } else {
       // Partial wallet + Razorpay for the shortfall
-      const safeRequired = Math.round(Number(razorpayRequired));
+      
       const loaded = await loadRazorpay();
       if (!loaded) {
         setErrorMsg("Could not load payment gateway. Check your internet connection.");
@@ -261,9 +261,9 @@ export default function Checkout() {
 
       let razorpayOrder;
       try {
-        const { data } = await API.post("/payment/create-order", { amount: safeRequired });
+        const { data } = await API.post("/payment/create-order", { couponCode: couponData?.code, walletAmount: walletApplied });
         if (!data.success) throw new Error(data.message);
-        razorpayOrder = data.order;
+        razorpayOrder = { ...data.order, keyId: data.keyId };
       } catch (err) {
         setErrorMsg(err.response?.data?.message || err.message || "Failed to initiate payment. Please try again.");
         setLoading(false);
@@ -277,7 +277,7 @@ export default function Checkout() {
       }
 
       const options = {
-        key: import.meta.env.VITE_RAZORPAY_KEY_ID,
+        key: razorpayOrder.keyId || import.meta.env.VITE_RAZORPAY_KEY_ID,
         amount: razorpayOrder.amount,
         currency: "INR",
         name: "OneCart.com",
@@ -570,11 +570,7 @@ export default function Checkout() {
                     initial={{ opacity: 0, x: 10 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: i * 0.06 }}
                     className="flex items-center gap-3">
                     <img
-                      src={item.productId?.image
-                        ? item.productId.image.startsWith("http")
-                          ? item.productId.image
-                          : `${import.meta.env.VITE_API_URL}/uploads/${item.productId.image}`
-                        : null}
+                      src={imgUrl(item.productId?.image)}
                       alt={item.productId?.name || ""}
                       onError={e => { e.target.style.display = "none"; e.target.nextSibling.style.display = "flex"; }}
                       className="w-12 h-12 rounded-xl object-contain bg-amazon-section border border-amazon-border p-1 flex-shrink-0" />
@@ -667,7 +663,7 @@ export default function Checkout() {
                     </span>
                   : payment === "razorpay"
                     ? `💳 Pay ₹${total.toLocaleString()}`
-                    : `🚀 Place Order (COD)`
+                    : payment === "wallet" ? `Pay ₹${total.toLocaleString()} using Wallet` : `🚀 Place Order (COD)`
                 }
               </motion.button>
 

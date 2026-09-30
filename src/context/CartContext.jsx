@@ -8,14 +8,12 @@ export function CartProvider({ children }) {
   const [cartCount, setCartCount] = useState(0);
   const { user } = useAuth();
 
-  const fetchCartCount = useCallback(async () => {
-    if (!user) { setCartCount(0); return; }
-    try {
-      const storedUser = JSON.parse(localStorage.getItem("user"));
-      const res = await API.get(`/cart?userId=${storedUser?._id}`);
+  const fetchCartCount = useCallback(() => {
+    if (!user) return Promise.resolve();
+    return API.get("/cart").then(res => {
       const items = Array.isArray(res.data) ? res.data : res.data.items || [];
       setCartCount(items.reduce((sum, i) => sum + (i.quantity || 1), 0));
-    } catch { setCartCount(0); }
+    }).catch(() => setCartCount(0));
   }, [user]);
 
   useEffect(() => { fetchCartCount(); }, [fetchCartCount]);
@@ -23,7 +21,7 @@ export function CartProvider({ children }) {
   const incrementCart = (qty = 1) => setCartCount(c => c + qty);
 
   return (
-    <CartContext.Provider value={{ cartCount, fetchCartCount, incrementCart }}>
+    <CartContext.Provider value={{ cartCount: user ? cartCount : 0, fetchCartCount, incrementCart }}>
       {children}
     </CartContext.Provider>
   );

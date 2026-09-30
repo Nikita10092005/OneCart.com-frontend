@@ -1,28 +1,28 @@
 import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import API from "../../services/api";
-import { io } from "socket.io-client";
+import { createSocket } from '../../services/socket';
 import { Send, MessageSquare, Search } from "lucide-react";
 
-const socket = io(import.meta.env.VITE_API_URL || "http://localhost:5000");
+
 
 function AdminMessages() {
+  const [socket] = useState(createSocket);
+  const [search,setSearch] = useState('');
+  const [error,setError] = useState('');
   const [messages, setMessages]       = useState([]);
   const [selectedUser, setSelectedUser] = useState(null);
   const [reply, setReply]             = useState("");
 
   useEffect(() => {
-    fetchMessages();
-    socket.emit("joinAdmin");
+    API.get('/messages').then(res=>setMessages(res.data)).catch(()=>setError('Unable to load messages. Please try again.'));
+    const join = () => socket.emit('joinAdmin');
+    socket.on('connect',join); socket.connect();
     const handleMessage = (msg) => setMessages(prev => [...prev, msg]);
     socket.on("receiveMessage", handleMessage);
-    return () => socket.off("receiveMessage", handleMessage);
-  }, []);
+    return () => {socket.off('receiveMessage',handleMessage);socket.off('connect',join);socket.disconnect();};
+  }, [socket]);
 
-  const fetchMessages = async () => {
-    const res = await API.get("/messages");
-    setMessages(res.data);
-  };
 
   const users = [...new Map(messages.map(m => [m.userId, m])).values()];
   const filteredMessages = messages.filter(m => m.userId === selectedUser);
@@ -36,6 +36,7 @@ function AdminMessages() {
 
   return (
     <div className="space-y-4">
+      {error && <p role="alert" className="text-red-600">{error}</p>}
 
       {/* HEADER */}
       <div className="pb-5 border-b border-amazon-section">
@@ -43,10 +44,10 @@ function AdminMessages() {
         <p className="text-amazon-accent text-sm mt-0.5">Respond to customer support queries</p>
       </div>
 
-      <div className="flex h-[65vh] bg-amazon-section/30 rounded-2xl overflow-hidden border border-amazon-border">
+      <div className="flex flex-col sm:flex-row h-[75dvh] sm:h-[65vh] bg-amazon-section/30 rounded-2xl overflow-hidden border border-amazon-border">
 
         {/* SIDEBAR */}
-        <div className="w-72 border-r border-amazon-border flex flex-col bg-white">
+        <div className="w-full sm:w-56 lg:w-72 shrink-0 max-h-52 sm:max-h-none border-r border-amazon-border flex flex-col bg-white">
           <div className="p-4 border-b border-amazon-section">
             <h3 className="text-sm font-black text-amazon-text flex items-center gap-2 mb-3">
               <MessageSquare size={16} className="text-amazon-accent" />
@@ -54,13 +55,13 @@ function AdminMessages() {
             </h3>
             <div className="relative">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-amazon-text-secondary" size={13} />
-              <input type="text" placeholder="Search customers..."
+              <input type="text" placeholder="Search customers..." value={search} onChange={e=>setSearch(e.target.value)}
                 className="w-full pl-8 pr-3 py-2 bg-amazon-section/50 border border-amazon-border rounded-xl text-xs font-bold text-amazon-text placeholder-amazon-text-secondary/60 focus:outline-none focus:ring-2 focus:ring-amazon-accent/30 transition" />
             </div>
           </div>
 
           <div className="flex-1 overflow-y-auto p-2 space-y-1">
-            {users.map((u, i) => (
+            {users.filter(u=>(u.userEmail || '').toLowerCase().includes(search.toLowerCase())).map((u, i) => (
               <motion.div key={i}
                 whileHover={{ x: 3 }}
                 onClick={() => setSelectedUser(u.userId)}
@@ -84,7 +85,7 @@ function AdminMessages() {
         </div>
 
         {/* CHAT AREA */}
-        <div className="flex-1 flex flex-col bg-white">
+        <div className="flex-1 min-h-0 min-w-0 flex flex-col bg-white">
           {!selectedUser ? (
             <div className="flex-1 flex flex-col items-center justify-center text-center p-10">
               <div className="w-16 h-16 bg-amazon-section text-amazon-accent rounded-2xl flex items-center justify-center mb-4">
@@ -100,8 +101,8 @@ function AdminMessages() {
                 <div className="w-9 h-9 bg-amazon-accent text-white rounded-xl flex items-center justify-center font-black text-sm">
                   {users.find(u => u.userId === selectedUser)?.userEmail?.[0].toUpperCase()}
                 </div>
-                <div>
-                  <h3 className="font-black text-amazon-text text-sm leading-none mb-0.5">
+                <div className="min-w-0">
+                  <h3 className="font-black text-amazon-text text-sm leading-none mb-0.5 break-all">
                     {users.find(u => u.userId === selectedUser)?.userEmail}
                   </h3>
                   <div className="flex items-center gap-1.5">

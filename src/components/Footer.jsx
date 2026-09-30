@@ -1,4 +1,5 @@
 import { useState } from "react";
+import API from "../services/api";
 import { Link } from "react-router-dom";
 import { FaFacebook, FaInstagram, FaTwitter, FaYoutube, FaMapMarkerAlt, FaPhone, FaEnvelope } from "react-icons/fa";
 import { HiSparkles } from "react-icons/hi";
@@ -60,7 +61,7 @@ export default function Footer() {
   const [subscribed, setSubscribed] = useState(false);
   const [showToast, setShowToast] = useState(false);
 
-  function handleSubscribe() {
+  async function handleSubscribe() {
     if (!email) {
       setEmailError("Please enter your email address");
       return;
@@ -70,13 +71,18 @@ export default function Footer() {
       return;
     }
     setLoading(true);
-    setTimeout(() => {
-      setLoading(false);
+    setEmailError("");
+    try {
+      await API.post("/newsletter", { email: email.trim() });
       setSubscribed(true);
       setEmail("");
       setShowToast(true);
       setTimeout(() => setShowToast(false), 3000);
-    }, 800);
+    } catch (error) {
+      setEmailError(error.response?.data?.message || "Unable to subscribe. Please try again.");
+    } finally {
+      setLoading(false);
+    }
   }
 
   return (
@@ -146,10 +152,12 @@ export default function Footer() {
           <h4 className="text-white font-bold text-sm">Stay Updated</h4>
           <div className="flex gap-2">
             <input
+              type="email"
+              aria-label="Newsletter email"
               value={email}
               onChange={e => { setEmail(e.target.value); setEmailError(""); }}
               placeholder="Enter your email"
-              className="flex-1 bg-white/10 border border-white/20 text-white placeholder-white/40 text-sm rounded-lg px-3 py-2.5 focus:outline-none focus:border-amazon-accent transition" />
+              className="min-w-0 flex-1 bg-white/10 border border-white/20 text-white placeholder-white/40 text-sm rounded-lg px-3 py-2.5 focus:outline-none focus:border-amazon-accent transition" />
             <button
               onClick={handleSubscribe}
               disabled={loading || subscribed}

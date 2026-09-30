@@ -3,7 +3,7 @@ import { GitCompare, Plus, X } from "lucide-react";
 import API from "../services/api";
 import { useAuth } from "../context/AuthContext";
 
-const ComparisonButton = ({ productId, productName, productImage, productPrice }) => {
+const ComparisonButton = ({ productId, productName }) => {
   const { user } = useAuth();
   const [inComparison, setInComparison] = useState(false);
   const [loading, setLoading] = useState(false);

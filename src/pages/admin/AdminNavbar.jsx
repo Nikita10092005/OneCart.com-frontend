@@ -12,7 +12,7 @@ function AdminNavbar({ onMenuToggle }) {
     <header className="h-14 bg-[#0F1923] border-b border-white/8 flex items-center px-4 gap-4 flex-shrink-0 z-30">
 
       {/* Mobile menu toggle */}
-      <button onClick={onMenuToggle}
+      <button aria-label="Open admin menu" onClick={onMenuToggle}
         className="md:hidden text-white/50 hover:text-white transition p-1.5 rounded-lg hover:bg-white/8">
         <Menu size={18} />
       </button>
@@ -42,10 +42,10 @@ function AdminNavbar({ onMenuToggle }) {
 
       {/* Right actions */}
       <div className="flex items-center gap-1">
-        <button className="p-2 rounded-lg text-white/40 hover:text-white hover:bg-white/8 transition">
+        <button aria-label="Price alerts" onClick={() => navigate('/admin/price-alerts')} className="p-2 rounded-lg text-white/40 hover:text-white hover:bg-white/8 transition">
           <Bell size={16} />
         </button>
-        <button className="p-2 rounded-lg text-white/40 hover:text-white hover:bg-white/8 transition">
+        <button aria-label="Financial settings" onClick={() => navigate('/admin/financial')} className="p-2 rounded-lg text-white/40 hover:text-white hover:bg-white/8 transition">
           <Settings size={16} />
         </button>
 
@@ -63,6 +63,7 @@ function AdminNavbar({ onMenuToggle }) {
         </div>
 
         <motion.button
+          aria-label="Logout"
           whileHover={{ scale: 1.04 }} whileTap={{ scale: 0.96 }}
           onClick={() => { logout(); navigate("/"); }}
           className="ml-1 flex items-center gap-1.5 px-3 py-2 rounded-lg bg-red-500/10 hover:bg-red-500 border border-red-500/20 hover:border-red-500 text-red-400 hover:text-white text-xs font-bold transition-all duration-200"

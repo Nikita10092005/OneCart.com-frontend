@@ -64,7 +64,7 @@ function Contact() {
     try {
       const res = await API.get(`/contact/user/${encodeURIComponent(email)}`);
       setMyQueries(res.data);
-    } catch (e) { /* silent */ }
+    } catch { /* silent */ }
   };
 
   const handleChange = (e) => setForm({ ...form, [e.target.name]: e.target.value });

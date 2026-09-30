@@ -279,7 +279,6 @@ export default function BusinessCard() {
     showToast("success", "Application submitted! We'll review it within 2 business days.");
   };
 
-  const tier = TIERS.find((t) => t.id === selectedTier);
 
   const ctaBlock = () => {
     if (!user) return (

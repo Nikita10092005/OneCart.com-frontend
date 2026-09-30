@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { io } from "socket.io-client";
 
-const SOCKET_URL = import.meta.env.VITE_API_URL || "http://localhost:5000";
+import { BASE_URL as SOCKET_URL } from '../services/config';
 
 const ViewerCount = ({ productId }) => {
   const [count, setCount] = useState(0);
@@ -29,8 +29,8 @@ const ViewerCount = ({ productId }) => {
       socket.on("viewerCount", ({ productId: pid, count: c }) => {
         if (pid === productId) setCount(c);
       });
-    } catch (err) {
-      setError(true);
+    } catch {
+      // Connection failures are handled by connect_error above.
     }
 
     return () => {
@@ -38,7 +38,7 @@ const ViewerCount = ({ productId }) => {
         try {
           socket.emit("leaveProductRoom", { productId });
           socket.disconnect();
-        } catch (_) {}
+        } catch { /* Socket already closed. */ }
       }
     };
   }, [productId]);

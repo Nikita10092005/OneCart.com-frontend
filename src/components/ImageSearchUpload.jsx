@@ -1,7 +1,7 @@
 import { useState, useRef } from "react";
 import { Upload } from "lucide-react";
 
-const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000";
+import { API_URL } from './../services/config';
 
 const ACCEPTED_TYPES = ["image/jpeg", "image/png", "image/webp"];
 const MAX_SIZE = 5 * 1024 * 1024; // 5 MB
@@ -36,7 +36,7 @@ export default function ImageSearchUpload({ onResults }) {
       const formData = new FormData();
       formData.append("image", file);
 
-      const res = await fetch(`${API_URL}/api/search/image`, {
+      const res = await fetch(`${API_URL}/search/image`, {
         method: "POST",
         body: formData,
       });

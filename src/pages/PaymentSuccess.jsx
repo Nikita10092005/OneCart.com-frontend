@@ -68,7 +68,7 @@ export default function PaymentSuccess() {
             {[...Array(12)].map((_, i) => (
               <motion.div key={i}
                 initial={{ opacity: 0, y: 0, x: 0 }}
-                animate={{ opacity: [0, 1, 0], y: -40 - Math.random() * 40, x: (Math.random() - 0.5) * 80 }}
+                animate={{ opacity: [0, 1, 0], y: -40 - (i * 17 % 40), x: (i * 23 % 80) - 40 }}
                 transition={{ delay: 0.2 + i * 0.08, duration: 1.2 }}
                 className="absolute top-8 left-1/2 w-2 h-2 rounded-full"
                 style={{ backgroundColor: ["#fff", "#fde68a", "#a7f3d0", "#bfdbfe"][i % 4] }}
@@ -87,7 +87,7 @@ export default function PaymentSuccess() {
             </motion.div>
             <motion.h1
               initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.5 }}
-              className="text-2xl font-extrabold text-white mb-1">Payment Successful!</motion.h1>
+              className="text-2xl font-extrabold text-white mb-1">Order Placed!</motion.h1>
             <motion.p
               initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.6 }}
               className="text-emerald-100 text-sm">Your order has been placed and confirmed</motion.p>

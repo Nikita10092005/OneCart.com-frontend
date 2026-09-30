@@ -24,7 +24,7 @@ export default function Rewards() {
       return;
     }
     fetchRewards();
-  }, [user]);
+  }, [user, navigate]);
 
   const fetchRewards = async () => {
     try {

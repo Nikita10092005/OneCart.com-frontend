@@ -39,7 +39,7 @@ function QuickView({ product, onClose }) {
       onClick={onClose}>
       <motion.div initial={{ scale: 0.9, y: 20 }} animate={{ scale: 1, y: 0 }} exit={{ scale: 0.9, y: 20 }}
         onClick={e => e.stopPropagation()}
-        className="bg-white rounded-2xl shadow-2xl max-w-lg w-full overflow-hidden">
+        className="bg-white rounded-2xl shadow-2xl max-w-lg w-full max-h-[90dvh] overflow-y-auto">
         <div className="h-52 bg-amazon-section flex items-center justify-center overflow-hidden">
           <ProductImage src={product.image} name={product.name} />
         </div>
@@ -264,11 +264,13 @@ function AdminProducts() {
   const bulkDelete = async () => {
     if (!selected.size) return;
     if (!window.confirm(`Delete ${selected.size} product(s)?`)) return;
+    const deleted = new Set();
     for (const id of selected) {
-      try { await API.delete(`/admin/product/${id}`); } catch {}
+      try { await API.delete(`/admin/product/${id}`); deleted.add(id); } catch { /* Keep failed items selected for retry. */ }
     }
-    setProducts(prev => prev.filter(p => !selected.has(p._id)));
-    setSelected(new Set());
+    setProducts(prev => prev.filter(p => !deleted.has(p._id)));
+    setSelected(new Set([...selected].filter(id => !deleted.has(id))));
+    if (deleted.size !== selected.size) alert("Some products could not be deleted. They remain selected; please retry.");
   };
 
   if (loading) return (

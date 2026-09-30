@@ -128,7 +128,7 @@ export default function Navbar() {
           <div className="flex md:hidden items-center gap-2 ml-auto">
             {user && <NotificationBell />}
             {user?.role !== "admin" && (
-              <Link to="/cart" className="relative text-white hover:text-amazon-accent p-2">
+              <Link to="/cart" aria-label="Cart" className="relative text-white hover:text-amazon-accent p-2">
                 <FaShoppingCart size={18} />
                 {cartCount > 0 && (
                   <span className="absolute top-0.5 right-0.5 bg-red-500 text-white text-[9px] font-black w-4 h-4 rounded-full flex items-center justify-center leading-none">
@@ -137,7 +137,7 @@ export default function Navbar() {
                 )}
               </Link>
             )}
-            <button onClick={() => setMenuOpen(o => !o)} className="text-white p-2">
+            <button aria-label={menuOpen ? "Close menu" : "Open menu"} aria-expanded={menuOpen} onClick={() => setMenuOpen(o => !o)} className="text-white p-2">
               {menuOpen ? <FaTimes size={20} /> : <FaBars size={20} />}
             </button>
           </div>

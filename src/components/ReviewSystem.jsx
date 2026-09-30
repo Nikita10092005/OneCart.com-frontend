@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Star, ThumbsUp, MessageSquare, Edit, Trash2, Camera, Check, X, Upload } from "lucide-react";
 import API from "../services/api";
@@ -9,7 +9,7 @@ const ReviewSystem = ({ productId }) => {
   const { user } = useAuth();
   const [reviews, setReviews] = useState([]);
   const [ratingStats, setRatingStats] = useState([]);
-  const [pagination, setPagination] = useState({});
+  const [, setPagination] = useState({});
   const [loading, setLoading] = useState(true);
   const [showReviewForm, setShowReviewForm] = useState(false);
   const [newReview, setNewReview] = useState({
@@ -25,11 +25,8 @@ const ReviewSystem = ({ productId }) => {
   const [uploadingImages, setUploadingImages] = useState(false);
   const fileInputRef = useRef(null);
 
-  useEffect(() => {
-    fetchReviews();
-  }, [productId, sortBy, sortOrder]);
 
-  const fetchReviews = async () => {
+  const fetchReviews = useCallback(async () => {
     try {
       const res = await API.get(`/reviews/product/${productId}?sortBy=${sortBy}&sortOrder=${sortOrder}`);
       setReviews(res.data.reviews);
@@ -40,7 +37,8 @@ const ReviewSystem = ({ productId }) => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [productId, sortBy, sortOrder]);
+  useEffect(() => {fetchReviews();}, [fetchReviews]);
 
   const handleSubmitReview = async (e) => {
     e.preventDefault();

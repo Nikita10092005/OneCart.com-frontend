@@ -220,7 +220,7 @@ export default function Profile() {
           ]);
           setRewards(rRes.data);
           setWallet(walRes.data);
-        } catch {}
+        } catch { /* Optional data could not be loaded. */ }
       } catch (e) { console.error(e); }
     };
     load();
@@ -389,7 +389,7 @@ export default function Profile() {
         </aside>
 
         {/* MAIN */}
-        <main ref={mainRef} className="lg:col-span-9 p-6 lg:p-10">
+        <main ref={mainRef} className="lg:col-span-9 min-w-0 p-4 sm:p-6 lg:p-10">
           <AnimatePresence mode="wait">
 
             {/* ── PROFILE TAB ── */}

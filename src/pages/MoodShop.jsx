@@ -1,8 +1,9 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
+import { imgUrl } from "../utils/imageUrl";
 
-const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000";
+import { API_URL } from './../services/config';
 
 const MOODS = [
   {
@@ -47,7 +48,7 @@ export default function MoodShop() {
     setSelectedMood(mood);
     setLoading(true);
     try {
-      const res = await fetch(`${API_URL}/api/products/mood/${mood}`);
+      const res = await fetch(`${API_URL}/products/mood/${mood}`);
       const data = await res.json();
       setProducts(data.products || []);
     } catch {
@@ -159,11 +160,7 @@ export default function MoodShop() {
                     >
                       <div className="aspect-square overflow-hidden bg-gray-50">
                         <img
-                          src={
-                            product.image?.startsWith("http")
-                              ? product.image
-                              : `${API_URL}/uploads/${product.image}`
-                          }
+                          src={imgUrl(product.image)}
                           alt={product.name}
                           className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
                           onError={(e) => { e.target.src = "https://placehold.co/300x300?text=No+Image"; }}

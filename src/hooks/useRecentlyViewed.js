@@ -1,22 +1,12 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useCallback } from 'react';
 
 const STORAGE_KEY = 'recently_viewed_products';
 const MAX_ITEMS = 10;
 
 export function useRecentlyViewed() {
-  const [recentlyViewed, setRecentlyViewed] = useState([]);
-
-  useEffect(() => {
-    const stored = localStorage.getItem(STORAGE_KEY);
-    if (stored) {
-      try {
-        setRecentlyViewed(JSON.parse(stored));
-      } catch (e) {
-        console.error('Failed to parse recently viewed:', e);
-      }
-    }
-  }, []);
-
+  const [recentlyViewed, setRecentlyViewed] = useState(() => {
+    try {return JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');} catch {return [];}
+  });
   const addToRecentlyViewed = useCallback((product) => {
     if (!product || !product._id) return;
     

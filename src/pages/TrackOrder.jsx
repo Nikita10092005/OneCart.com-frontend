@@ -9,7 +9,7 @@ import {
   Clock, RefreshCw, AlertCircle
 } from "lucide-react";
 
-const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000";
+import { API_URL } from './../services/config';
 
 const STAGES = [
   { name: "Ordered",   icon: ClipboardList, label: "Order Placed",   desc: "Your order has been confirmed" },
@@ -78,7 +78,6 @@ function TrackingProgress({ status, trackingStages = [] }) {
           {STAGES.map((stage, i) => {
             const done = i < safeIndex;
             const current = i === safeIndex;
-            const pending = i > safeIndex;
             const Icon = stage.icon;
             const ts = stageTimestamps[stage.name];
 
@@ -365,7 +364,7 @@ export default function TrackOrder() {
       }
 
       // Fallback: try full ID track endpoint
-      const res = await fetch(`${API_URL}/api/orders/${cleanId}/track`, {
+      const res = await fetch(`${API_URL}/orders/${cleanId}/track`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       if (!res.ok) throw new Error("Not found");

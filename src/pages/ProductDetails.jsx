@@ -1,3 +1,4 @@
+import { API_URL } from '../services/config';
 import { useParams, Link, useNavigate } from "react-router-dom";
 import { useEffect, useState, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
@@ -11,14 +12,11 @@ import ViewerCount from "../components/ViewerCount";
 import PriceAlertButton from "../components/PriceAlertButton";
 import ComparisonButton from "../components/ComparisonButton";
 import ReviewSystem from "../components/ReviewSystem";
-
-const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000";
+import { imgUrl, API_BASE_URL } from "../utils/imageUrl";
 
 function ProductImage({ product }) {
   const [imgError, setImgError] = useState(false);
-  const imageUrl = product.image
-    ? (product.image.startsWith("http") ? product.image : `${API_URL}/uploads/${product.image}`)
-    : null;
+  const imageUrl = imgUrl(product.image);
 
   if (!imageUrl || imgError) {
     return (
@@ -66,6 +64,7 @@ export default function ProductDetails() {
   const { incrementCart } = useCart();
   const { addToRecentlyViewed } = useRecentlyViewed();
   const [product, setProduct] = useState(null);
+  const [loadError,setLoadError] = useState(null);
   const [reviews, setReviews] = useState([]);
   const [related, setRelated] = useState([]);
   const [added, setAdded] = useState(false);
@@ -74,41 +73,33 @@ export default function ProductDetails() {
   const infoRef   = useRef(null);
   const breadRef  = useRef(null);
 
-  const fetchReviews = async () => {
-    try { const r = await API.get(`/reviews/${id}`); setReviews(r.data); }
-    catch (e) { console.error(e); }
-  };
 
   useEffect(() => {
     window.scrollTo(0, 0);
-    console.log('Starting product load for ID:', id);
     const load = async () => {
       try {
-        console.log('Making API calls...');
         const [pRes, rRes] = await Promise.all([
           API.get(`/products/${id}`),
           API.get(`/reviews/${id}`)
         ]);
-        console.log('API responses:', { product: pRes.data, reviews: rRes.data });
         setProduct(pRes.data);
         setReviews(rRes.data);
         addToRecentlyViewed(pRes.data);
         // Record browsing event for authenticated users
         if (user) {
           const token = localStorage.getItem("token");
-          fetch(`${import.meta.env.VITE_API_URL || "http://localhost:5000"}/api/recommendations/browse`, {
+          fetch(`${API_URL}/recommendations/browse`, {
             method: "POST",
             headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
             body: JSON.stringify({ productId: id })
           }).catch(() => {});
         }
       } catch (e) { 
-        console.error('Error loading product:', e); 
-        console.error('Error details:', e.response);
+        setLoadError({id,message:e.response?.status === 404 ? 'Product not found' : 'Unable to load this product. Please try again.'});
       }
     };
     load();
-  }, [id]);
+  }, [id, user, addToRecentlyViewed]);
 
   // GSAP entrance after product loads
   useEffect(() => {
@@ -168,21 +159,12 @@ export default function ProductDetails() {
     finally { setWishlistLoading(false); }
   };
 
-  const submitReview = async () => {
-    const user = JSON.parse(localStorage.getItem("user"));
-    if (!user) { alert("Please login to review"); return; }
-    try {
-      await API.post("/reviews", { productId: id, userId: user._id, rating: Number(rating), comment });
-      setComment("");
-      fetchReviews();
-    } catch { alert("Error submitting review"); }
-  };
-
   const avgRating = reviews.length
     ? (reviews.reduce((a, b) => a + b.rating, 0) / reviews.length).toFixed(1)
     : null;
 
-  if (!product) return (
+  if (loadError?.id === id) return <main className="min-h-screen p-8 text-center"><h1 className="text-xl font-bold">{loadError.message}</h1><Link to="/home" className="inline-block mt-4 underline">Back to shopping</Link></main>;
+  if (!product || product._id !== id) return (
     <div className="min-h-screen bg-amazon-section flex items-center justify-center">
       <motion.div
         animate={{ rotate: 360 }}
@@ -359,7 +341,7 @@ export default function ProductDetails() {
                     className="bg-amazon-section border border-amazon-border rounded-xl p-3 hover:border-amazon-accent transition-all group block">
                     <div className="w-full h-40 flex items-center justify-center mb-3 bg-white rounded-lg overflow-hidden border border-amazon-border">
                       <img
-                        src={p.image?.startsWith("http") ? p.image : `${API_URL}/uploads/${p.image}`}
+                        src={imgUrl(p.image)}
                         alt={p.name}
                         className="max-h-full max-w-full object-contain group-hover:scale-105 transition-transform duration-300" />
                     </div>

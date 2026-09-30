@@ -161,12 +161,11 @@ export default function SellUnder() {
   const [fboStatus, setFboStatus] = useState(null);
   const [fboRejectionReason, setFboRejectionReason] = useState("");
   const [modalOpen, setModalOpen] = useState(false);
-  const [statusLoading, setStatusLoading] = useState(false);
+  const [statusLoading, setStatusLoading] = useState(Boolean(user));
   const [toast, setToast] = useState(null);
 
   useEffect(() => {
     if (!user) return;
-    setStatusLoading(true);
     getMyFboEnrollment()
       .then((res) => {
         setFboStatus(res.data.status);

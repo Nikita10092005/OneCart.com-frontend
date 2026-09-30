@@ -250,7 +250,7 @@ export default function AdminSellerApplications() {
 
   // Load FBO enrollments when tab activated
   useEffect(() => {
-    if (activeTab === "fbo" && fboEnrollments.length === 0) {
+    if (activeTab === "fbo") {
       setFboLoading(true);
       getFboEnrollments()
         .then(r => setFboEnrollments(r.data))

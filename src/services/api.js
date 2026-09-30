@@ -1,11 +1,15 @@
 import axios from "axios";
 
+import { API_URL } from './config';
+
 const API = axios.create({
-  baseURL: "http://localhost:5000/api"
+  baseURL: API_URL,
+  timeout: 20000
 });
 
 API.interceptors.request.use((config) => {
-  const storedUser = JSON.parse(localStorage.getItem("user"));
+  let storedUser;
+  try {storedUser = JSON.parse(localStorage.getItem('user'));} catch {localStorage.removeItem('user');}
   const storedToken = localStorage.getItem("token");
   const token = storedToken || storedUser?.token;
   if (token) {

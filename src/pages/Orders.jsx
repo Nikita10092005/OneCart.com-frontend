@@ -96,7 +96,7 @@ export default function Orders() {
       try {
         const refundsRes = await API.get("/financial/refunds/my");
         setMyRefunds(refundsRes.data?.refunds || []);
-      } catch (e) {
+      } catch {
         setRefundsError("Failed to load refund requests.");
       } finally {
         setRefundsLoading(false);
@@ -300,7 +300,7 @@ export default function Orders() {
                             className="flex-1 py-2.5 bg-amazon-accent hover:bg-amazon-accent-hover text-amazon-text font-bold rounded-xl text-xs shadow-md shadow-black/10">
                             🔁 Buy Again
                           </motion.button>
-                          {order.status !== "Cancelled" && order.status !== "Delivered" && (
+                          {["Ordered", "Packed"].includes(order.status) && (
                             <motion.button whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.97 }}
                               onClick={() => cancelOrder(order._id)}
                               className="flex-1 py-2.5 bg-white border border-red-200 text-red-500 hover:bg-red-50 font-bold rounded-xl text-xs">

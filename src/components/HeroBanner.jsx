@@ -3,21 +3,23 @@ import { motion, AnimatePresence } from "framer-motion";
 import { gsap } from "gsap";
 import { FaChevronLeft, FaChevronRight } from "react-icons/fa";
 import { imgUrl } from "../utils/imageUrl";
+import { Link, useNavigate } from "react-router-dom";
 
 const slides = [
-  { img: "https://images.unsplash.com/photo-1498049794561-7780e7231661?q=80&w=1600", badge: "New Arrivals", title: "Discover Deals Across Electronics & Fashion", sub: "Curated picks every day with fast delivery" },
-  { img: "https://images.unsplash.com/photo-1445205170230-053b83016050?q=80&w=1600", badge: "Up to 60% Off", title: "Trending Fashion at Best Prices", sub: "GenZ styles, premium brands, unbeatable deals" },
-  { img: "https://images.unsplash.com/photo-1519389950473-47ba0277781c?q=80&w=1600", badge: "Flash Sale", title: "Upgrade Your Lifestyle Today", sub: "Smart gadgets, home essentials and more" },
+  { img: "https://images.unsplash.com/photo-1498049794561-7780e7231661?q=80&w=1600", badge: "New Arrivals", title: "Discover Deals Across Electronics & Fashion", sub: "Curated picks every day with fast delivery", link: "/home" },
+  { img: "https://images.unsplash.com/photo-1445205170230-053b83016050?q=80&w=1600", badge: "Up to 60% Off", title: "Trending Fashion at Best Prices", sub: "GenZ styles, premium brands, unbeatable deals", link: "/home?main=Fashion" },
+  { img: "https://images.unsplash.com/photo-1519389950473-47ba0277781c?q=80&w=1600", badge: "Flash Sale", title: "Upgrade Your Lifestyle Today", sub: "Smart gadgets, home essentials and more", link: "/home?main=Electronics" },
 ];
 
 const offerCards = [
-  { title: "🔥 Top Electronics", imgs: ["iphone15.jpg","applewatch9.jpg","airpodsmax.jpg","dellxps13.jpg"], link: "See deals →" },
-  { title: "💥 Fashion Sale",    imgs: ["silkkurta.jpg","designersaree.jpg","whitesneakers.jpg","navyblazer.jpg"], link: "Shop now →" },
-  { title: "🎁 Kids Specials",   imgs: ["rccar.jpg","teddybear.jpg","kidsledshoes.jpg","artkit.jpg"], link: "Explore →" },
+  { title: "🔥 Top Electronics", imgs: ["iphone15.jpg","applewatch9.jpg","airpodsmax.jpg","dellxps13.jpg"], category: "Electronics", link: "See deals →" },
+  { title: "💥 Fashion Sale",    imgs: ["silkkurta.jpg","designersaree.jpg","whitesneakers.jpg","navyblazer.jpg"], category: "Fashion", link: "Shop now →" },
+  { title: "🎁 Kids Specials",   imgs: ["rccar.jpg","teddybear.jpg","kidsledshoes.jpg","artkit.jpg"], category: "Kids", link: "Explore →" },
 ];
 
 export default function HeroBanner() {
   const [current, setCurrent] = useState(0);
+  const navigate = useNavigate();
   const badgeRef = useRef(null);
   const titleRef = useRef(null);
   const subRef   = useRef(null);
@@ -75,9 +77,10 @@ export default function HeroBanner() {
                 {s.sub}
               </p>
               <motion.button ref={btnRef}
+                onClick={() => navigate(slides[current].link)}
                 whileHover={{ scale: 1.05, boxShadow: "0 8px 30px rgba(255,153,0,0.4)" }}
                 whileTap={{ scale: 0.97 }}
-                className="w-fit bg-amazon-accent hover:bg-amazon-accent-hover text-amazon-text font-bold px-5 sm:px-8 py-2.5 sm:py-3.5 rounded-xl shadow-lg text-xs sm:text-sm">
+                className="w-fit bg-amazon-accent hover:bg-amazon-accent-hover text-amazon-text font-bold px-5 sm:px-8 py-2.5 sm:py-3.5 rounded-xl shadow-lg text-xs sm:text-sm cursor-pointer">
                 Shop Now →
               </motion.button>
             </div>
@@ -123,7 +126,12 @@ export default function HeroBanner() {
                 </div>
               ))}
             </div>
-            <span className="text-xs font-semibold text-amazon-accent">{card.link}</span>
+            <Link
+              to={`/search?category=${encodeURIComponent(card.category)}`}
+              className="inline-block text-xs font-semibold text-amazon-accent hover:underline rounded focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amazon-accent focus-visible:ring-offset-2"
+            >
+              {card.link}
+            </Link>
           </motion.div>
         ))}
       </div>

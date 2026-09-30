@@ -4,7 +4,7 @@ import { useState } from "react";
 import {
   LayoutDashboard, Package, PlusCircle, ShoppingCart, MessageSquare,
   ShieldCheck, Bell, BarChart3, DollarSign, Inbox, Store, Briefcase,
-  ChevronRight, ChevronDown, Menu, X
+  ChevronRight, ChevronDown, Menu, X, Users
 } from "lucide-react";
 import AdminNavbar from "./AdminNavbar";
 
@@ -41,7 +41,9 @@ const MENU_GROUPS = [
   {
     group: "People",
     items: [
-      { label: "Sellers",     path: "/admin/sellers",     icon: Store },
+      { label: "Customers", path: "/admin/customers", icon: Users },
+      { label: "Seller Accounts", path: "/admin/seller-accounts", icon: Store },
+      { label: "Seller Applications", path: "/admin/sellers", icon: Store },
       { label: "Jobs",        path: "/admin/jobs",        icon: Briefcase },
     ]
   },
@@ -57,7 +59,9 @@ const PAGE_LABELS = {
   "/admin/financial":    "Financial",
   "/admin/messages":     "Messages",
   "/admin/queries":      "Queries",
-  "/admin/sellers":      "Sellers",
+  "/admin/sellers":      "Seller Applications",
+  "/admin/customers":    "Customers",
+  "/admin/seller-accounts": "Seller Accounts",
   "/admin/jobs":         "Jobs",
 };
 
@@ -69,8 +73,8 @@ function AdminLayout() {
 
   const pageLabel = PAGE_LABELS[location.pathname] || "Admin";
 
-  const SidebarContent = () => (
-    <div className="flex flex-col h-full">
+  const sidebarContent = (
+    <div className="flex flex-col flex-1 min-h-0">
       {/* Logo */}
       <div className={`flex items-center gap-3 px-5 py-5 border-b border-white/8 ${collapsed ? "justify-center px-3" : ""}`}>
         <div className="w-8 h-8 rounded-lg bg-amazon-accent flex items-center justify-center flex-shrink-0 shadow-md">
@@ -119,7 +123,7 @@ function AdminLayout() {
       </nav>
 
       {/* Collapse toggle */}
-      <div className="p-3 border-t border-white/8">
+      <div className="hidden md:block p-3 border-t border-white/8">
         <button
           onClick={() => setCollapsed(c => !c)}
           className="w-full flex items-center justify-center gap-2 py-2 rounded-xl text-white/30 hover:text-white/60 hover:bg-white/5 transition text-xs font-bold"
@@ -132,7 +136,7 @@ function AdminLayout() {
 
   return (
     <div className="flex flex-col min-h-screen bg-[#F4F5F7] font-sans antialiased">
-      <AdminNavbar onMenuToggle={() => setMobileOpen(o => !o)} />
+      <AdminNavbar onMenuToggle={() => {setCollapsed(false);setMobileOpen(o => !o);}} />
 
       <div className="flex flex-1 overflow-hidden" style={{ height: "calc(100vh - 56px)" }}>
 
@@ -142,7 +146,7 @@ function AdminLayout() {
           transition={{ duration: 0.25, ease: "easeInOut" }}
           className="hidden md:flex flex-col bg-[#0F1923] overflow-hidden flex-shrink-0 border-r border-white/5"
         >
-          <SidebarContent />
+          {sidebarContent}
         </motion.aside>
 
         {/* Mobile Sidebar Overlay */}
@@ -159,18 +163,18 @@ function AdminLayout() {
               >
                 <div className="flex items-center justify-between px-4 py-4 border-b border-white/8">
                   <p className="text-white font-black text-sm">Admin Panel</p>
-                  <button onClick={() => setMobileOpen(false)} className="text-white/40 hover:text-white">
+                  <button aria-label="Close admin menu" onClick={() => setMobileOpen(false)} className="text-white/40 hover:text-white">
                     <X size={18} />
                   </button>
                 </div>
-                <SidebarContent />
+                {sidebarContent}
               </motion.aside>
             </>
           )}
         </AnimatePresence>
 
         {/* Main Content */}
-        <main className="flex-1 overflow-y-auto">
+        <main className="flex-1 min-w-0 overflow-y-auto">
           {/* Breadcrumb bar */}
           <div className="sticky top-0 z-10 bg-[#F4F5F7] border-b border-gray-200 px-6 py-3 flex items-center gap-2">
             <span className="text-xs text-gray-400 font-medium">Admin</span>
@@ -178,7 +182,7 @@ function AdminLayout() {
             <span className="text-xs font-bold text-gray-700">{pageLabel}</span>
           </div>
 
-          <div className="p-6 max-w-[1500px] mx-auto">
+          <div className="p-3 sm:p-6 max-w-[1500px] mx-auto">
             <AnimatePresence mode="wait">
               <motion.div
                 key={location.pathname}
@@ -186,7 +190,7 @@ function AdminLayout() {
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -8 }}
                 transition={{ duration: 0.2 }}
-                className="bg-white rounded-2xl border border-gray-200 shadow-sm p-7 min-h-[600px]"
+                className="bg-white rounded-2xl border border-gray-200 shadow-sm p-3 sm:p-7 min-h-[600px]"
               >
                 <Outlet />
               </motion.div>

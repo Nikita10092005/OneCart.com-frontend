@@ -4,6 +4,7 @@ import { useState } from "react";
 import { FaShoppingCart, FaCheck } from "react-icons/fa";
 import API from "../services/api";
 import { useCart } from "../context/CartContext";
+import { imgUrl } from "../utils/imageUrl";
 
 function ProductCard({ product }) {
   const navigate = useNavigate();
@@ -30,10 +31,7 @@ function ProductCard({ product }) {
     }
   };
 
-  const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000";
-  const imageUrl = product.image
-    ? (product.image.startsWith("http") ? product.image : `${API_URL}/uploads/${product.image}`)
-    : null;
+  const imageUrl = imgUrl(product.image);
 
   return (
     <>

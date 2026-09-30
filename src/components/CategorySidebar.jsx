@@ -1,4 +1,5 @@
-import { useState, useEffect } from "react";
+import { BASE_URL } from '../services/config';
+import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
@@ -9,16 +10,9 @@ function CategorySidebar({ setCategory, onOpenChat }) {
   const [active, setActive] = useState("all");
   const { user } = useAuth();
   const navigate = useNavigate();
-  const [recentlyViewed, setRecentlyViewed] = useState([]);
-
-  // Load recently viewed from localStorage
-  useEffect(() => {
-    const stored = localStorage.getItem('recentlyViewed');
-    if (stored) {
-      setRecentlyViewed(JSON.parse(stored).slice(0, 3)); // Show last 3 items
-    }
-  }, []);
-
+  const [recentlyViewed] = useState(() => {
+    try {return JSON.parse(localStorage.getItem('recently_viewed_products') || '[]').slice(0,3);} catch {return [];}
+  });
   const categories = [
     { name: "Electronics",   icon: <FaLaptop />,  sub: ["Mobiles", "Laptops", "Headphones", "Smart Watches", "Gaming Accessories"], count: 156 },
     { name: "Men",           icon: <FaMale />,    sub: ["Kurtas", "Blazers", "Shirts", "T-Shirts", "Jeans", "Lowers", "Accessories", "Footwear"], count: 243 },
@@ -115,7 +109,7 @@ function CategorySidebar({ setCategory, onOpenChat }) {
                 <div className="w-10 h-10 rounded-lg bg-amazon-section flex items-center justify-center flex-shrink-0 border border-amazon-border">
                   {product.image ? (
                     <img 
-                      src={product.image.startsWith('http') ? product.image : `${import.meta.env.VITE_API_URL || 'http://localhost:5000'}/uploads/${product.image}`}
+                      src={product.image.startsWith('http') ? product.image : `${BASE_URL}/uploads/${product.image}`}
                       alt={product.name}
                       className="w-full h-full object-cover rounded-lg"
                     />

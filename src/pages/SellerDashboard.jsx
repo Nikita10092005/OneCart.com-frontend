@@ -46,7 +46,6 @@ export default function SellerDashboard() {
   const [endDate,   setEndDate]   = useState(dates.end);
 
   const fetchAnalytics = (start, end) => {
-    setAnalyticsLoading(true);
     const params = start && end ? `?startDate=${start}&endDate=${end}` : "";
     API.get(`/seller/analytics${params}`)
       .then(r => setAnalytics(r.data))
@@ -61,9 +60,10 @@ export default function SellerDashboard() {
         .then(r => setSellerProfile(r.data))
         .catch(console.error);
     }
-  }, []);
+  }, [user?._id]);
 
   const handleDateChange = (start, end) => {
+    setAnalyticsLoading(true);
     setStartDate(start);
     setEndDate(end);
     fetchAnalytics(start, end);

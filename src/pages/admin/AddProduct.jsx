@@ -2,7 +2,6 @@ import { useState, useRef, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { gsap } from "gsap";
 import API from "../../services/api";
-import { imgUrl } from "../../utils/imageUrl";
 
 const inputCls = "w-full bg-white border border-amazon-border rounded-xl px-4 py-3 text-sm font-medium text-amazon-text focus:outline-none focus:ring-2 focus:ring-amazon-accent/30 focus:border-amazon-accent transition-all placeholder:text-amazon-text-secondary/60";
 
@@ -97,6 +96,10 @@ function AddProduct() {
 
   const handleImage = (file) => {
     if (!file) return;
+    if (!['image/jpeg', 'image/png', 'image/webp', 'image/gif'].includes(file.type) || file.size > 5 * 1024 * 1024) {
+      alert('Choose a JPG, PNG, WEBP or GIF image smaller than 5MB.');
+      return;
+    }
     // revoke previous blob URL to avoid memory leaks
     if (imagePreview && imagePreview.startsWith("blob:")) URL.revokeObjectURL(imagePreview);
     setImage(file);
@@ -288,7 +291,7 @@ function AddProduct() {
                   <>
                     <div className="w-12 h-12 bg-amazon-section rounded-xl border border-amazon-border flex items-center justify-center text-2xl">🖼</div>
                     <p className="text-xs font-bold text-amazon-accent">Drop image here or click to upload</p>
-                    <p className="text-[10px] text-amazon-text-secondary">PNG, JPG, WEBP — max 10MB</p>
+                    <p className="text-[10px] text-amazon-text-secondary">PNG, JPG, WEBP, GIF — max 5MB</p>
                   </>
                 )}
                 <input ref={fileRef} type="file" accept="image/*" onChange={e => handleImage(e.target.files[0])} className="hidden" />

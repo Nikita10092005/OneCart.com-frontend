@@ -1,15 +1,16 @@
-import { useState, useEffect } from "react";
+const getToken = () => localStorage.getItem('token');
+import { useState, useEffect, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { 
   Ticket, Percent, RotateCcw, CreditCard, Plus, Edit2, Trash2, 
   Check, X, Save, AlertCircle, Globe, Banknote, Power
 } from "lucide-react";
 
-const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000";
+import { API_URL } from './../../services/config';
 
 function AdminFinancial() {
   const [activeTab, setActiveTab] = useState("coupons");
-  const [loading, setLoading] = useState(false);
+  const [, setLoading] = useState(false);
   const [message, setMessage] = useState({ type: "", text: "" });
 
   /* Coupon State */
@@ -81,42 +82,33 @@ function AdminFinancial() {
     maxAmount: ""
   });
 
-  useEffect(() => {
-    if (activeTab === "coupons") fetchCoupons();
-    if (activeTab === "taxes") fetchTaxes();
-    if (activeTab === "refunds") {
-      fetchRefunds();
-      fetchRefundStats();
-    }
-    if (activeTab === "payments") fetchPaymentSettings();
-  }, [activeTab]);
 
-  const showMessage = (type, text) => {
+
+  const showMessage = useCallback((type, text) => {
     setMessage({ type, text });
     setTimeout(() => setMessage({ type: "", text: "" }), 3000);
-  };
+  }, []);
 
-  const getToken = () => localStorage.getItem("token");
+
 
   /* ================ COUPON API ================ */
-  const fetchCoupons = async () => {
+  const fetchCoupons = useCallback(async () => {
     try {
-      setLoading(true);
-      const res = await fetch(`${API_URL}/api/financial/coupons`, {
+      const res = await fetch(`${API_URL}/financial/coupons`, {
         headers: { Authorization: `Bearer ${getToken()}` }
       });
       const data = await res.json();
       if (data.success) setCoupons(data.coupons);
-    } catch (err) {
+    } catch {
       showMessage("error", "Failed to fetch coupons");
     } finally {
       setLoading(false);
     }
-  };
+  }, [showMessage]);
 
   const createCoupon = async () => {
     try {
-      const res = await fetch(`${API_URL}/api/financial/coupons`, {
+      const res = await fetch(`${API_URL}/financial/coupons`, {
         method: "POST",
         headers: { 
           "Content-Type": "application/json",
@@ -131,14 +123,14 @@ function AdminFinancial() {
         setShowCouponForm(false);
         resetCouponForm();
       }
-    } catch (err) {
+    } catch {
       showMessage("error", "Failed to create coupon");
     }
   };
 
   const updateCoupon = async () => {
     try {
-      const res = await fetch(`${API_URL}/api/financial/coupons/${editingCoupon._id}`, {
+      const res = await fetch(`${API_URL}/financial/coupons/${editingCoupon._id}`, {
         method: "PUT",
         headers: { 
           "Content-Type": "application/json",
@@ -154,7 +146,7 @@ function AdminFinancial() {
         setEditingCoupon(null);
         resetCouponForm();
       }
-    } catch (err) {
+    } catch {
       showMessage("error", "Failed to update coupon");
     }
   };
@@ -162,7 +154,7 @@ function AdminFinancial() {
   const deleteCoupon = async (id) => {
     if (!confirm("Are you sure you want to delete this coupon?")) return;
     try {
-      const res = await fetch(`${API_URL}/api/financial/coupons/${id}`, {
+      const res = await fetch(`${API_URL}/financial/coupons/${id}`, {
         method: "DELETE",
         headers: { Authorization: `Bearer ${getToken()}` }
       });
@@ -171,7 +163,7 @@ function AdminFinancial() {
         showMessage("success", "Coupon deleted");
         fetchCoupons();
       }
-    } catch (err) {
+    } catch {
       showMessage("error", "Failed to delete coupon");
     }
   };
@@ -209,24 +201,23 @@ function AdminFinancial() {
   };
 
   /* ================ TAX API ================ */
-  const fetchTaxes = async () => {
+  const fetchTaxes = useCallback(async () => {
     try {
-      setLoading(true);
-      const res = await fetch(`${API_URL}/api/financial/taxes`, {
+      const res = await fetch(`${API_URL}/financial/taxes`, {
         headers: { Authorization: `Bearer ${getToken()}` }
       });
       const data = await res.json();
       if (data.success) setTaxes(data.taxes);
-    } catch (err) {
+    } catch {
       showMessage("error", "Failed to fetch taxes");
     } finally {
       setLoading(false);
     }
-  };
+  }, [showMessage]);
 
   const createTax = async () => {
     try {
-      const res = await fetch(`${API_URL}/api/financial/taxes`, {
+      const res = await fetch(`${API_URL}/financial/taxes`, {
         method: "POST",
         headers: { 
           "Content-Type": "application/json",
@@ -241,14 +232,14 @@ function AdminFinancial() {
         setShowTaxForm(false);
         resetTaxForm();
       }
-    } catch (err) {
+    } catch {
       showMessage("error", "Failed to create tax");
     }
   };
 
   const updateTax = async () => {
     try {
-      const res = await fetch(`${API_URL}/api/financial/taxes/${editingTax._id}`, {
+      const res = await fetch(`${API_URL}/financial/taxes/${editingTax._id}`, {
         method: "PUT",
         headers: { 
           "Content-Type": "application/json",
@@ -264,7 +255,7 @@ function AdminFinancial() {
         setEditingTax(null);
         resetTaxForm();
       }
-    } catch (err) {
+    } catch {
       showMessage("error", "Failed to update tax");
     }
   };
@@ -272,7 +263,7 @@ function AdminFinancial() {
   const deleteTax = async (id) => {
     if (!confirm("Are you sure you want to delete this tax?")) return;
     try {
-      const res = await fetch(`${API_URL}/api/financial/taxes/${id}`, {
+      const res = await fetch(`${API_URL}/financial/taxes/${id}`, {
         method: "DELETE",
         headers: { Authorization: `Bearer ${getToken()}` }
       });
@@ -281,7 +272,7 @@ function AdminFinancial() {
         showMessage("success", "Tax deleted");
         fetchTaxes();
       }
-    } catch (err) {
+    } catch {
       showMessage("error", "Failed to delete tax");
     }
   };
@@ -315,24 +306,23 @@ function AdminFinancial() {
   };
 
   /* ================ REFUND API ================ */
-  const fetchRefunds = async () => {
+  const fetchRefunds = useCallback(async () => {
     try {
-      setLoading(true);
-      const res = await fetch(`${API_URL}/api/financial/refunds`, {
+      const res = await fetch(`${API_URL}/financial/refunds`, {
         headers: { Authorization: `Bearer ${getToken()}` }
       });
       const data = await res.json();
       if (data.success) setRefunds(data.refunds);
-    } catch (err) {
+    } catch {
       showMessage("error", "Failed to fetch refunds");
     } finally {
       setLoading(false);
     }
-  };
+  }, [showMessage]);
 
-  const fetchRefundStats = async () => {
+  const fetchRefundStats = useCallback(async () => {
     try {
-      const res = await fetch(`${API_URL}/api/financial/refunds/stats`, {
+      const res = await fetch(`${API_URL}/financial/refunds/stats`, {
         headers: { Authorization: `Bearer ${getToken()}` }
       });
       const data = await res.json();
@@ -340,11 +330,11 @@ function AdminFinancial() {
     } catch (err) {
       console.error("Failed to fetch refund stats", err);
     }
-  };
+  }, []);
 
   const updateRefundStatus = async () => {
     try {
-      const res = await fetch(`${API_URL}/api/financial/refunds/${selectedRefund._id}`, {
+      const res = await fetch(`${API_URL}/financial/refunds/${selectedRefund._id}`, {
         method: "PUT",
         headers: { 
           "Content-Type": "application/json",
@@ -360,7 +350,7 @@ function AdminFinancial() {
         setShowRefundModal(false);
         setSelectedRefund(null);
       }
-    } catch (err) {
+    } catch {
       showMessage("error", "Failed to update refund");
     }
   };
@@ -376,36 +366,35 @@ function AdminFinancial() {
   };
 
   /* ================ PAYMENT SETTINGS API ================ */
-  const fetchPaymentSettings = async () => {
+  const fetchPaymentSettings = useCallback(async () => {
     try {
-      setLoading(true);
-      let res = await fetch(`${API_URL}/api/financial/payment-settings`, {
+      let res = await fetch(`${API_URL}/financial/payment-settings`, {
         headers: { Authorization: `Bearer ${getToken()}` }
       });
       let data = await res.json();
       
       if (!data.success || data.settings.length === 0) {
-        await fetch(`${API_URL}/api/financial/payment-settings/init`, {
+        await fetch(`${API_URL}/financial/payment-settings/init`, {
           method: "POST",
           headers: { Authorization: `Bearer ${getToken()}` }
         });
-        res = await fetch(`${API_URL}/api/financial/payment-settings`, {
+        res = await fetch(`${API_URL}/financial/payment-settings`, {
           headers: { Authorization: `Bearer ${getToken()}` }
         });
         data = await res.json();
       }
       
       if (data.success) setPaymentSettings(data.settings);
-    } catch (err) {
+    } catch {
       showMessage("error", "Failed to fetch payment settings");
     } finally {
       setLoading(false);
     }
-  };
+  }, [showMessage]);
 
   const updatePaymentSettings = async () => {
     try {
-      const res = await fetch(`${API_URL}/api/financial/payment-settings/${editingPayment.provider}`, {
+      const res = await fetch(`${API_URL}/financial/payment-settings/${editingPayment.provider}`, {
         method: "PUT",
         headers: { 
           "Content-Type": "application/json",
@@ -420,14 +409,14 @@ function AdminFinancial() {
         setShowPaymentForm(false);
         setEditingPayment(null);
       }
-    } catch (err) {
+    } catch {
       showMessage("error", "Failed to update payment settings");
     }
   };
 
   const togglePaymentProvider = async (provider) => {
     try {
-      const res = await fetch(`${API_URL}/api/financial/payment-settings/${provider}/toggle`, {
+      const res = await fetch(`${API_URL}/financial/payment-settings/${provider}/toggle`, {
         method: "PATCH",
         headers: { Authorization: `Bearer ${getToken()}` }
       });
@@ -436,7 +425,7 @@ function AdminFinancial() {
         showMessage("success", `Payment provider ${data.settings.isEnabled ? "enabled" : "disabled"}`);
         fetchPaymentSettings();
       }
-    } catch (err) {
+    } catch {
       showMessage("error", "Failed to toggle payment provider");
     }
   };
@@ -500,6 +489,15 @@ function AdminFinancial() {
     { id: "payments", label: "Payment Gateways", icon: <CreditCard size={18} /> }
   ];
 
+  useEffect(() => {
+    if (activeTab === "coupons") fetchCoupons();
+    if (activeTab === "taxes") fetchTaxes();
+    if (activeTab === "refunds") {
+      fetchRefunds();
+      fetchRefundStats();
+    }
+    if (activeTab === "payments") fetchPaymentSettings();
+  }, [activeTab, fetchCoupons, fetchTaxes, fetchRefunds, fetchRefundStats, fetchPaymentSettings]);
   return (
     <div className="space-y-6">
       <AnimatePresence>
@@ -789,8 +787,8 @@ function AdminFinancial() {
           </div>
 
           {showRefundModal && selectedRefund && (
-            <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-              <motion.div initial={{ scale: 0.9, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} className="bg-white rounded-xl p-6 w-full max-w-lg">
+            <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-3">
+              <motion.div initial={{ scale: 0.9, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} className="bg-white rounded-xl p-6 w-full max-w-lg max-h-[90dvh] overflow-y-auto">
                 <h4 className="text-lg font-bold text-amazon-text mb-4">Process Refund</h4>
                 <div className="space-y-4">
                   <div>

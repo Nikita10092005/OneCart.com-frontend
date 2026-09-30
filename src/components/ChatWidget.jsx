@@ -1,76 +1,79 @@
 import { useEffect, useState, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { io } from "socket.io-client";
+import { createSocket } from '../services/socket';
 import { useAuth } from "../context/AuthContext";
 
-const socket = io(import.meta.env.VITE_API_URL || "http://localhost:5000");
+
 
 function ChatWidget() {
   const { user } = useAuth();
+  const [socket] = useState(createSocket);
   const [open, setOpen] = useState(false);
   const [text, setText] = useState("");
-  const [messages, setMessages] = useState([]);
+  const [messages,setMessages] = useState([
+    {text:'👋 Hi! Welcome to OneCart Support',sender:'bot'},
+    {text:'How can I help you today?',sender:'bot'}
+  ]);
   const [typing, setTyping] = useState(false);
   const [unread, setUnread] = useState(0);
   const bottomRef = useRef();
 
   useEffect(() => {
-    if (user?._id) socket.emit("joinRoom", user._id);
+    if (!user?._id) return;
+    const join = () => socket.emit('joinRoom',user._id);
+    socket.on('connect',join); socket.connect();
+    return () => {socket.off('connect',join);socket.disconnect();};
+  },[user?._id,socket]);
+  useEffect(() => {
     const handleMessage = (msg) => {
       if (msg.userId !== user?._id) return;
       setMessages((prev) => {
         if (prev.some(m => m._id === msg._id)) return prev;
         return [...prev, msg];
       });
-      if (!open) { setUnread((prev) => prev + 1); new Audio("/ping.mp3").play().catch(() => {}); }
+      if (!open) { setUnread((prev) => prev + 1); }
       if (msg.sender === "bot") setTyping(false);
     };
     socket.off("receiveMessage");
     socket.on("receiveMessage", handleMessage);
     return () => socket.off("receiveMessage", handleMessage);
-  }, [user, open]);
+  }, [user, open, socket]);
 
   // Listen for external open trigger (e.g. from sidebar)
   useEffect(() => {
-    const handler = () => setOpen(true);
+    const handler = () => {setOpen(true);setUnread(0);};
     window.addEventListener('openChat', handler);
     return () => window.removeEventListener('openChat', handler);
   }, []);
 
-  useEffect(() => {
-    if (open && messages.length === 0) {
-      setMessages([
-        { text: "👋 Hi! Welcome to OneCart Support", sender: "bot" },
-        { text: "How can I help you today?", sender: "bot" }
-      ]);
-    }
-  }, [open]);
 
   useEffect(() => { bottomRef.current?.scrollIntoView({ behavior: "smooth" }); }, [messages]);
-  useEffect(() => { if (open) setUnread(0); }, [open]);
 
-  const sendMessage = () => {
-    if (!text.trim()) return;
-    socket.emit("sendMessage", { userId: user?._id, userEmail: user?.email, text, sender: "user" });
+
+  const sendMessage = (value = text) => {
+    if (!value.trim() || !user || !socket.connected) return;
+    socket.emit('sendMessage',{text:value});
     setTyping(true);
     setText("");
   };
 
-  const sendQuick = (val) => { setText(val); setTimeout(sendMessage, 100); };
+  const sendQuick = (val) => sendMessage(val);
 
+  if (!user) return null;
   return (
     <>
       {/* FLOATING BUTTON */}
       <AnimatePresence>
         {!open && (
-          <motion.div
+          <motion.button
+            type="button"
             initial={{ scale: 0, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
             exit={{ scale: 0, opacity: 0 }}
             whileHover={{ scale: 1.1 }}
             whileTap={{ scale: 0.9 }}
-            onClick={() => setOpen(true)}
-            className="fixed bottom-6 right-6 w-14 h-14 rounded-full bg-amazon-accent hover:bg-amazon-accent-hover text-amazon-text flex items-center justify-center cursor-pointer shadow-xl shadow-black/10 z-50">
+            aria-label="Open customer support" onClick={() => {setOpen(true);setUnread(0);}}
+            className="fixed bottom-6 left-4 sm:left-6 w-14 h-14 rounded-full bg-amazon-accent hover:bg-amazon-accent-hover text-amazon-text flex items-center justify-center cursor-pointer shadow-xl shadow-black/10 z-50">
             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
             </svg>
@@ -80,7 +83,7 @@ function ChatWidget() {
                 {unread}
               </motion.span>
             )}
-          </motion.div>
+          </motion.button>
         )}
       </AnimatePresence>
 
@@ -92,7 +95,7 @@ function ChatWidget() {
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.85, y: 20 }}
             transition={{ type: "spring", stiffness: 300, damping: 25 }}
-            className="fixed bottom-6 right-6 w-80 h-[460px] bg-white rounded-2xl shadow-2xl shadow-black/10 border border-amazon-border flex flex-col z-50 overflow-hidden">
+            className="fixed bottom-24 left-3 sm:left-6 w-[calc(100vw-1.5rem)] sm:w-80 h-[460px] max-h-[calc(100dvh-7rem)] bg-white rounded-2xl shadow-2xl shadow-black/10 border border-amazon-border flex flex-col z-50 overflow-hidden">
 
             {/* HEADER */}
             <div className="bg-amazon-accent text-amazon-text px-4 py-3 flex items-center justify-between">
@@ -153,7 +156,7 @@ function ChatWidget() {
                 placeholder="Type a message..."
                 onKeyDown={e => e.key === "Enter" && sendMessage()}
                 className="flex-1 px-4 py-3 text-sm text-amazon-text placeholder-amazon-text-secondary focus:outline-none bg-transparent" />
-              <motion.button onClick={sendMessage} whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}
+              <motion.button onClick={() => sendMessage()} whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}
                 className="px-4 text-amazon-accent hover:text-amazon-accent-hover transition font-bold text-lg">
                 ➤
               </motion.button>

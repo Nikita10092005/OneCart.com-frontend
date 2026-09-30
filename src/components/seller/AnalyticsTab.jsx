@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import {
   AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
@@ -9,7 +9,7 @@ import API from "../../services/api";
 function useCountUp(target, duration = 1200) {
   const [value, setValue] = useState(0);
   useEffect(() => {
-    if (!target) { setValue(0); return; }
+    if (!target) return;
     let start = 0;
     const step = target / (duration / 16);
     const timer = setInterval(() => {
@@ -19,7 +19,7 @@ function useCountUp(target, duration = 1200) {
     }, 16);
     return () => clearInterval(timer);
   }, [target, duration]);
-  return value;
+  return target ? value : 0;
 }
 
 function KPICard({ label, value, prefix = "", suffix = "", color, icon }) {

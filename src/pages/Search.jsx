@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useSearchParams, useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import API from "../services/api";
@@ -11,45 +11,38 @@ export default function Search() {
   const navigate = useNavigate();
   const q = params.get("q") || "";
   const categoryParam = params.get("category") || "";
-  const [term, setTerm] = useState(q);
-  const [products, setProducts] = useState([]);
-  const [loading, setLoading] = useState(false);
-  const [searched, setSearched] = useState(!!(q || categoryParam));
+  const [draft, setDraft] = useState({query:q,value:q});
+  const term = draft.query === q ? draft.value : q;
+  const setTerm = value => setDraft({query:q,value});
+  const searchTimer = useRef(null);
+  const changeTerm = value => {
+    setTerm(value);
+    clearTimeout(searchTimer.current);
+    searchTimer.current = setTimeout(() => setParams(value.trim() ? {q:value.trim()} : {}),400);
+  };
+  const resultKey = JSON.stringify([q, categoryParam]);
+  const [results, setResults] = useState({key:'',products:[],error:''});
+  const searched = Boolean(q.trim() || categoryParam);
+  const loading = searched && results.key !== resultKey;
+  const products = results.key === resultKey ? results.products : [];
   const [imageResults, setImageResults] = useState([]);
   const [showImageSearch, setShowImageSearch] = useState(false);
 
-  useEffect(() => { setTerm(q); }, [q]);
+  useEffect(() => () => clearTimeout(searchTimer.current), [q, categoryParam]);
 
   useEffect(() => {
-    // Category browse mode
-    if (categoryParam && !q) {
-      setLoading(true);
-      setSearched(true);
-      API.get(`/products?main=${encodeURIComponent(categoryParam)}`)
-        .then(res => setProducts(Array.isArray(res.data) ? res.data : res.data.products || []))
-        .catch(() => setProducts([]))
-        .finally(() => setLoading(false));
-      return;
-    }
-    // Text search mode
-    if (!q.trim()) { setProducts([]); setSearched(false); return; }
-    setLoading(true); setSearched(true);
-    API.get(`/products?search=${encodeURIComponent(q.trim())}`)
-      .then(res => setProducts(Array.isArray(res.data) ? res.data : res.data.products || []))
-      .catch(() => setProducts([]))
-      .finally(() => setLoading(false));
-  }, [q, categoryParam]);
+    if (!searched) return;
+    let active = true;
+    const url = q.trim() ? `/products?search=${encodeURIComponent(q.trim())}` : `/products?main=${encodeURIComponent(categoryParam)}`;
+    API.get(url).then(res => {
+      if (active) setResults({key:resultKey,products:Array.isArray(res.data) ? res.data : res.data.products || [],error:''});
+    }).catch(() => {
+      if (active) setResults({key:resultKey,products:[],error:'Unable to load products. Please try again.'});
+    });
+    return () => {active = false;};
+  }, [q, categoryParam, searched, resultKey]);
 
-  useEffect(() => {
-    const t = setTimeout(() => {
-      const trimmed = term.trim();
-      if (trimmed && trimmed !== q) setParams({ q: trimmed });
-      else if (!trimmed && q) setParams({});
-    }, 400);
-    return () => clearTimeout(t);
-  }, [term]);
-
-  const clear = () => { setTerm(""); setParams({}); setProducts([]); setSearched(false); };
+  const clear = () => { clearTimeout(searchTimer.current); setTerm(""); setParams({}); };
   const quickSearch = (s) => { setTerm(s); setParams({ q: s }); };
 
   const handleImageResults = (products) => {
@@ -59,12 +52,13 @@ export default function Search() {
   return (
     <div className="min-h-screen bg-amazon-section py-8 px-4">
       <div className="max-w-6xl mx-auto">
+        {results.key === resultKey && results.error && <p role="alert" className="mb-4 text-red-700">{results.error}</p>}
 
         {/* SEARCH BAR */}
         <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} className="mb-8">
           <div className="relative max-w-2xl mx-auto">
             <FaSearch className="absolute left-4 top-1/2 -translate-y-1/2 text-amazon-text-secondary text-sm" />
-            <input value={term} onChange={e => setTerm(e.target.value)}
+            <input value={term} onChange={e => changeTerm(e.target.value)}
               onKeyDown={e => { if (e.key === "Enter" && term.trim()) setParams({ q: term.trim() }); }}
               placeholder="Search products, brands, categories..."
               autoFocus

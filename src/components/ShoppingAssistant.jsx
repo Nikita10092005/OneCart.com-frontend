@@ -2,8 +2,9 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { MessageCircle, X, Send } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
+import { imgUrl } from "../utils/imageUrl";
 
-const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000";
+import { API_URL } from './../services/config';
 
 export default function ShoppingAssistant() {
   const { user } = useAuth();
@@ -31,9 +32,9 @@ export default function ShoppingAssistant() {
     setLoading(true);
 
     try {
-      const res = await fetch(`${API_URL}/api/assistant/query`, {
+      const res = await fetch(`${API_URL}/assistant/query`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: { "Content-Type": "application/json", Authorization: `Bearer ${localStorage.getItem("token")}` },
         body: JSON.stringify({ query }),
       });
       const data = await res.json();
@@ -66,7 +67,7 @@ export default function ShoppingAssistant() {
 
       {/* Chat panel */}
       {open && (
-        <div className="fixed bottom-20 right-6 w-80 bg-white rounded-xl shadow-xl border z-50 flex flex-col overflow-hidden">
+        <div className="fixed bottom-24 right-3 sm:right-6 w-[calc(100vw-1.5rem)] sm:w-80 max-h-[calc(100dvh-7rem)] bg-white rounded-xl shadow-xl border z-50 flex flex-col overflow-hidden">
           {/* Header */}
           <div className="flex items-center justify-between px-4 py-3 bg-blue-600 text-white">
             <span className="font-semibold text-sm">🛍️ Shopping Assistant</span>
@@ -109,11 +110,7 @@ export default function ShoppingAssistant() {
                           className="flex items-center gap-2 bg-gray-100 rounded-lg p-2 cursor-pointer hover:bg-gray-200 transition-colors"
                         >
                           <img
-                            src={
-                              p.image?.startsWith("http")
-                                ? p.image
-                                : `${API_URL}/uploads/${p.image}`
-                            }
+                            src={imgUrl(p.image)}
                             alt={p.name}
                             className="w-12 h-12 object-cover rounded-md flex-shrink-0"
                           />

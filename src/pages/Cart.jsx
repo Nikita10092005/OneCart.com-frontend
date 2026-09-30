@@ -1,5 +1,6 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import { useCart } from '../context/CartContext';
 import API from "../services/api";
 import { useNavigate } from "react-router-dom";
 import { imgUrl } from "../utils/imageUrl";
@@ -8,20 +9,19 @@ export default function Cart() {
   const [cart, setCart] = useState([]);
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
+  const {fetchCartCount} = useCart();
+  const [error,setError] = useState('');
 
-  const fetchCart = async () => {
-    const user = JSON.parse(localStorage.getItem("user"));
-    const res = await API.get(`/cart?userId=${user?._id}`);
-    setCart(res.data);
-    setLoading(false);
-  };
-
-  useEffect(() => { fetchCart(); }, []);
-
-  const increase = async (item) => { await API.put(`/cart/${item._id}`, { quantity: item.quantity + 1 }); fetchCart(); };
-  const decrease = async (item) => { if (item.quantity === 1) return; await API.put(`/cart/${item._id}`, { quantity: item.quantity - 1 }); fetchCart(); };
-  const removeItem = async (id) => { await API.delete(`/cart/${id}`); fetchCart(); };
-
+  const fetchCart = useCallback(async () => {
+    try {const res = await API.get('/cart');setCart(res.data);setError('');}
+    catch(e) {setError(e.response?.data?.message || 'Unable to load cart');}
+    finally {setLoading(false);}
+  },[]);
+  useEffect(() => {fetchCart();},[fetchCart]);
+  const change = async action => {try {await action();await fetchCart();await fetchCartCount();} catch(e) {setError(e.response?.data?.message || 'Unable to update cart');}};
+  const increase = item => change(()=>API.put('/cart/'+item._id,{quantity:item.quantity+1}));
+  const decrease = item => item.quantity > 1 && change(()=>API.put('/cart/'+item._id,{quantity:item.quantity-1}));
+  const removeItem = id => change(()=>API.delete('/cart/'+id));
   const subtotal = cart.reduce((acc, item) => acc + (item.productId?.price || 0) * item.quantity, 0);
   const delivery = subtotal > 0 ? 49 : 0;
   const total = subtotal + delivery;
@@ -37,6 +37,7 @@ export default function Cart() {
     <div className="min-h-screen bg-amazon-section py-8 px-4">
       <div className="max-w-6xl mx-auto">
 
+        {error && <p role="alert" className="mb-4 text-red-700">{error}</p>}
         {/* HEADER */}
         <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }}
           className="flex items-center gap-3 mb-8">

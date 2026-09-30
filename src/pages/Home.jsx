@@ -1,3 +1,4 @@
+import { API_URL } from '../services/config';
 import { useEffect, useState, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { gsap } from "gsap";
@@ -8,9 +9,10 @@ import ProductCard from "../components/ProductCard";
 import HeroBanner from "../components/HeroBanner";
 import CategorySidebar from "../components/CategorySidebar";
 import PriceFilter from "../components/PriceFilter";
+import { imgUrl } from "../utils/imageUrl";
 import RecentlyViewed from "../components/RecentlyViewed";
 import PointsWidget from "../components/PointsWidget";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 
 gsap.registerPlugin(ScrollTrigger);
@@ -40,15 +42,19 @@ function SectionHeader({ title, count, onSeeAll }) {
 
 export default function Home() {
   const [products, setProducts] = useState([]);
-  const [category, setCategory] = useState("all");
+
   const [priceRange, setPriceRange] = useState([0, 100000]);
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const navigate = useNavigate();
+  const [searchParams,setSearchParams] = useSearchParams();
+  const category = searchParams.get('main') || 'all';
+  const setCategory = value => setSearchParams(value === 'all' ? {} : {main:value});
   const quickPicksRef = useRef(null);
   const promoBannerRef = useRef(null);
   const { user } = useAuth();
   const [personalizedProducts, setPersonalizedProducts] = useState([]);
   const [isPersonalized, setIsPersonalized] = useState(false);
+
 
   useEffect(() => {
     const u = JSON.parse(localStorage.getItem("user"));
@@ -84,9 +90,9 @@ export default function Home() {
   }, []);
 
   useEffect(() => {
-    if (!user) { setPersonalizedProducts([]); setIsPersonalized(false); return; }
+    if (!user) return;
     const token = localStorage.getItem("token");
-    fetch(`${import.meta.env.VITE_API_URL || "http://localhost:5000"}/api/recommendations/home`, {
+    fetch(`${API_URL}/recommendations/home`, {
       headers: { Authorization: `Bearer ${token}` }
     })
       .then(res => res.json())
@@ -96,7 +102,7 @@ export default function Home() {
 
   const filtered = products.filter(p => p.price >= priceRange[0] && p.price <= priceRange[1]);
 
-  const SidebarContent = () => (
+  const sidebarContent = (
     <>
       <PointsWidget />
       <div className="mt-4">
@@ -171,7 +177,7 @@ export default function Home() {
             whileHover={{ y: -3, scale: 1.03 }}
             onClick={() => navigate(`/product/${p._id}`)}
             className="flex items-center gap-2 bg-white border border-amazon-border rounded-full px-3 sm:px-4 py-1.5 sm:py-2 cursor-pointer flex-shrink-0 hover:shadow-md transition-all group">
-            <img src={p.image?.startsWith("http") ? p.image : `${import.meta.env.VITE_API_URL || "http://localhost:5000"}/uploads/${p.image}`}
+            <img src={imgUrl(p.image)}
               alt={p.name} className="w-6 h-6 sm:w-8 sm:h-8 rounded-full object-cover bg-amazon-section" />
             <span className="text-xs font-medium text-amazon-text group-hover:text-amazon-accent whitespace-nowrap">
               {p.name.length > 16 ? p.name.slice(0, 16) + "…" : p.name}
@@ -204,7 +210,7 @@ export default function Home() {
                   <FaTimes size={18} />
                 </button>
               </div>
-              <SidebarContent />
+              {sidebarContent}
             </motion.div>
           </>
         )}
@@ -214,7 +220,7 @@ export default function Home() {
 
         {/* DESKTOP SIDEBAR */}
         <div className="hidden lg:block w-64 flex-shrink-0 pr-5 border-r border-amazon-border">
-          <SidebarContent />
+          {sidebarContent}
         </div>
 
         {/* MAIN CONTENT */}
