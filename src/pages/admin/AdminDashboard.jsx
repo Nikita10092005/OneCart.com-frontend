@@ -165,7 +165,7 @@ export default function AdminDashboard() {
             <SectionHeader icon={ShoppingCart} title="Recent Orders" action="View all" onAction={() => navigate("/admin/orders")} />
           </div>
           <div className="overflow-x-auto">
-            <table className="w-full text-sm">
+            <table className="w-full text-sm min-w-[500px]">
               <thead>
                 <tr className="bg-gray-50 border-y border-gray-100">
                   <th className="text-left text-[10px] font-black text-gray-400 uppercase tracking-wider px-5 py-2.5">Order</th>

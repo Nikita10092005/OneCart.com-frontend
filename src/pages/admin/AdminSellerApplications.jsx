@@ -365,12 +365,12 @@ export default function AdminSellerApplications() {
       )}
 
       {/* Tabs */}
-      <div className="flex gap-1 border-b border-amazon-border mb-6">
+      <div className="flex gap-1 border-b border-amazon-border mb-6 overflow-x-auto scrollbar-hide">
         {TABS.map(tab => (
           <button
             key={tab.id}
             onClick={() => setActiveTab(tab.id)}
-            className={`flex items-center gap-2 px-5 py-3 text-sm font-semibold transition-colors relative ${activeTab === tab.id ? "text-amazon-accent" : "text-amazon-text-secondary hover:text-amazon-text"}`}
+            className={`flex items-center gap-2 px-4 py-3 text-sm font-semibold transition-colors relative whitespace-nowrap flex-shrink-0 ${activeTab === tab.id ? "text-amazon-accent" : "text-amazon-text-secondary hover:text-amazon-text"}`}
           >
             {tab.icon} {tab.label}
             {activeTab === tab.id && <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-amazon-accent rounded-full" />}
@@ -413,7 +413,7 @@ export default function AdminSellerApplications() {
                       </p>
                     </div>
                   </div>
-                  <div className="flex items-center gap-3">
+                  <div className="flex items-center gap-3 flex-wrap justify-end">
                     <span className={`px-3 py-1 rounded-full text-xs font-bold border capitalize ${STATUS_STYLES[app.status] || STATUS_STYLES.pending}`}>
                       {app.status === "pending" && <FaClock className="inline mr-1" />}
                       {app.status === "approved" && <FaCheckCircle className="inline mr-1" />}
